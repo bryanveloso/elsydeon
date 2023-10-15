@@ -9,6 +9,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@twurple/api": "^7.0.4",
+    "@twurple/auth": "^7.0.4",
+    "@twurple/chat": "^7.0.4",
     "discord.js": "^14.13.0"
   }
 }
