@@ -14,7 +14,7 @@
   "dependencies": {
     "@twurple/api": "^7.0.4",
     "@twurple/auth": "^7.0.4",
-    "@twurple/chat": "^7.0.4",
+    "@twurple/easy-bot": "^7.0.6",
     "discord.js": "^14.13.0"
   }
 }

@@ -1,5 +1,11 @@
 import { RefreshingAuthProvider, type RefreshingAuthProviderConfig, type TokenInfoData } from '@twurple/auth';
-import { ChatClient } from '@twurple/chat';
+import { Bot, BotCommand } from '@twurple/easy-bot';
+
+import { punt } from './commands/punt';
+
+const commands: BotCommand[] = [
+  punt
+]
 
 export const init = async () => {
   const tokenFile = './tokens.66977097.json'
@@ -17,10 +23,9 @@ export const init = async () => {
   await authProvider.addUserForToken(tokenData, ['chat'])
 
   const channels = (Bun.env.TWITCH_CHANNELS as string).split(',') as string[];
-  const chatClient = new ChatClient({ authProvider, channels });
-  chatClient.connect();
-
-  chatClient.onConnect(() => {
+  const bot = new Bot({ authProvider, channels, commands });
+  
+  bot.onConnect(() => {
     console.log(`Connected to ${channels.length} channels: ${channels.join(', ')}`);
   })
 }
