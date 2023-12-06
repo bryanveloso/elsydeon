@@ -6,8 +6,9 @@ import {
 import { Bot, BotCommand } from '@twurple/easy-bot';
 
 import { punt } from './commands/punt';
+import { slap } from './commands/slap';
 
-const commands: BotCommand[] = [punt];
+const commands: BotCommand[] = [punt, slap];
 
 export const init = async () => {
   const tokenFile = './tokens.66977097.json';
