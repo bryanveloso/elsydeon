@@ -3,7 +3,7 @@ import {
   type RefreshingAuthProviderConfig,
   type TokenInfoData,
 } from '@twurple/auth';
-import { Bot, BotCommand } from '@twurple/easy-bot';
+import { Bot, BotCommand, createBotCommand } from '@twurple/easy-bot';
 
 import { punt } from './commands/punt';
 import { slap } from './commands/slap';
@@ -31,6 +31,14 @@ export const init = async () => {
   await authProvider.addUserForToken(tokenData, ['chat']);
 
   const channels = (Bun.env.TWITCH_CHANNELS as string).split(',') as string[];
+
+  // !commands lives here so we can grab the list of commands from the variable.
+  const available = createBotCommand('commands', (_, { say }) => {
+    const commandList = commands.map(command => `!${command.name}`).join(', ');
+    say(`Look what I can do! avalonEUREKA -> [${commandList}]`);
+  });
+  commands.push(available);
+
   const bot = new Bot({ authProvider, channels, commands });
 
   bot.onConnect(() => {
