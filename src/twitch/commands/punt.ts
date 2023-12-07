@@ -8,9 +8,9 @@ export const punt = createBotCommand(
         `can't punt ${userInfo.displayName}! They're too kawaii~ avalonEYES`
       );
     } else {
-      await timeout(1, 'Disrespected lalafells.');
+      await timeout(1, 'Disrespected lalafells');
       action(
-        `punted ${userInfo.displayName} for your disrespect, lalafell hater. avalonRAGE`
+        `punted ${userInfo.displayName} for their disrespect, lalafell hater. avalonRAGE`
       );
     }
   }
