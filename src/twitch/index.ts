@@ -52,7 +52,7 @@ const appImpliedScopes: string[] = [
 ];
 
 export const init = async () => {
-  const tokenFile = '../tokens.66977097.json';
+  const tokenFile = './tokens.66977097.json';
   const tokenData = await Bun.file(tokenFile).json();
 
   const authProvider = new RefreshingAuthProvider({
@@ -64,7 +64,7 @@ export const init = async () => {
   authProvider.onRefresh(
     async (userId: string, newTokenData: TokenInfoData) => {
       await Bun.write(
-        `../tokens.${userId}.json`,
+        `./tokens.${userId}.json`,
         JSON.stringify(newTokenData, null, 2)
       );
     }
