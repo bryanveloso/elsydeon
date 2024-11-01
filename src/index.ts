@@ -13,5 +13,6 @@ try {
   await discordInit();
   await twitchInit();
 } catch (error: any) {
+  console.error(error);
   process.exit(1);
 }
