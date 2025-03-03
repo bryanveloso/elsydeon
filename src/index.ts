@@ -5,6 +5,7 @@ import * as schema from './db/schema';
 
 import { init as discordInit } from './discord';
 import { init as twitchInit } from './twitch';
+import { init as webInit } from './web';
 
 // Add graceful shutdown handling
 const handleShutdown = () => {
@@ -21,8 +22,17 @@ const startup = async () => {
     const result = await db.select({ value: count() }).from(schema.quotes);
     console.log(`Loaded ${result[0].value} quotes...`);
     
+    // Start Discord and Twitch bots
     await discordInit();
     await twitchInit();
+    
+    // Start web server if enabled
+    const webEnabled = Bun.env.WEB_ENABLED === 'true';
+    const webPort = parseInt(Bun.env.WEB_PORT || '3000');
+    
+    if (webEnabled) {
+      await webInit(webPort);
+    }
     
     console.log('All services initialized successfully');
   } catch (error) {

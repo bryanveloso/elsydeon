@@ -24,8 +24,11 @@ fi
 echo "Building Docker image..."
 docker build -t elsydeon:latest .
 
-# Create data volume if it doesn't exist
-docker volume create elsydeon-data
+# Create token volume if it doesn't exist
+docker volume create elsydeon-tokens
+
+# Create data directory if it doesn't exist
+mkdir -p ./data
 
 # Stop and remove existing container if it exists
 if docker ps -a | grep -q elsydeon; then
@@ -35,18 +38,23 @@ if docker ps -a | grep -q elsydeon; then
 fi
 
 # Run the container with environment variables
-echo "Starting Elsydeon bot..."
+echo "Starting Elsydeon..."
 docker run -d \
   --name elsydeon \
   --restart unless-stopped \
-  -v elsydeon-data:/usr/src/app/tokens \
-  -v $(pwd)/quotes.db:/usr/src/app/quotes.db \
+  -p 3000:3000 \
+  -v elsydeon-tokens:/usr/src/app/tokens \
+  -v $(pwd)/data:/usr/src/app/data \
   -e DISCORD_TOKEN="$DISCORD_TOKEN" \
   -e TWITCH_CLIENT_ID="$TWITCH_CLIENT_ID" \
   -e TWITCH_CLIENT_SECRET="$TWITCH_CLIENT_SECRET" \
   -e TWITCH_CHANNELS="$TWITCH_CHANNELS" \
   -e TWITCH_USER_ID="${TWITCH_USER_ID:-66977097}" \
-  -e DATABASE_PATH="/usr/src/app/quotes.db" \
+  -e WEB_ENABLED="true" \
+  -e WEB_PORT="3000" \
+  -e DATABASE_PATH="/usr/src/app/data/quotes.db" \
   elsydeon:latest
 
-echo "Container started! Check logs with: docker logs elsydeon"
+echo "Container started!"
+echo "- Bot logs: docker logs elsydeon"
+echo "- Web interface: http://localhost:3000"
