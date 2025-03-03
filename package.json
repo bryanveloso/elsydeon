@@ -11,13 +11,13 @@
     "drizzle-kit": "^0.20.18"
   },
   "peerDependencies": {
-    "typescript": "^5.6.3"
+    "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@twurple/api": "^7.2.0",
-    "@twurple/auth": "^7.2.0",
-    "@twurple/easy-bot": "^7.2.0",
-    "discord.js": "^14.16.3",
+    "@twurple/api": "^7.2.1",
+    "@twurple/auth": "^7.2.1",
+    "@twurple/easy-bot": "^7.2.1",
+    "discord.js": "^14.18.0",
     "drizzle-orm": "^0.29.5"
   }
 }
