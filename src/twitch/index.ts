@@ -1,7 +1,7 @@
 import {
   RefreshingAuthProvider,
   type RefreshingAuthProviderConfig,
-  type TokenInfoData,
+  type AccessToken,
 } from '@twurple/auth';
 import { Bot, BotCommand, createBotCommand } from '@twurple/easy-bot';
 
@@ -10,9 +10,7 @@ import { slap } from './commands/slap';
 
 const commands: BotCommand[] = [punt, slap];
 
-// I hate that I need to do this.
-// But I also hate not having the proper scopes and 
-// having to manually reauthenticate.
+// Keep existing scopes as requested
 const appImpliedScopes: string[] = [
   'bits:read',
   'channel:edit:commercial',
@@ -52,41 +50,72 @@ const appImpliedScopes: string[] = [
 ];
 
 export const init = async () => {
-  const tokenFile = './tokens.66977097.json';
-  const tokenData = await Bun.file(tokenFile).json();
+  // Validate environment variables
+  if (!Bun.env.TWITCH_CLIENT_ID || !Bun.env.TWITCH_CLIENT_SECRET || !Bun.env.TWITCH_CHANNELS) {
+    throw new Error('Missing required Twitch environment variables');
+  }
 
-  const authProvider = new RefreshingAuthProvider({
-    clientId: Bun.env.TWITCH_CLIENT_ID,
-    clientSecret: Bun.env.TWITCH_CLIENT_SECRET,
-    appImpliedScopes,
-  } as RefreshingAuthProviderConfig);
+  // Use environment variable with fallback for user ID
+  const userId = Bun.env.TWITCH_USER_ID || '66977097';
+  const tokenFile = `./tokens.${userId}.json`;
+  
+  try {
+    // Read token data with error handling
+    const tokenData = await Bun.file(tokenFile).json().catch(() => {
+      throw new Error(`Could not read token file: ${tokenFile}`);
+    });
 
-  authProvider.onRefresh(
-    async (userId: string, newTokenData: TokenInfoData) => {
-      await Bun.write(
-        `./tokens.${userId}.json`,
-        JSON.stringify(newTokenData, null, 2)
-      );
-    }
-  );
+    const authProvider = new RefreshingAuthProvider({
+      clientId: Bun.env.TWITCH_CLIENT_ID,
+      clientSecret: Bun.env.TWITCH_CLIENT_SECRET,
+      appImpliedScopes,
+    } as RefreshingAuthProviderConfig);
 
-  await authProvider.addUserForToken(tokenData, ['chat']);
-
-  const channels = (Bun.env.TWITCH_CHANNELS as string).split(',') as string[];
-
-  // !commands lives here so we can grab the list of commands from the variable.
-  const available = createBotCommand('commands', (_, { say }) => {
-    const commandList = commands.map(command => `!${command.name}`).join(', ');
-    say(`Look what I can do! avalonEUREKA -> [${commandList}]`);
-  });
-  commands.push(available);
-
-  const bot = new Bot({ authProvider, channels, commands });
-  await bot.api.requestScopesForUser(66977097, appImpliedScopes);
-
-  bot.onConnect(() => {
-    console.log(
-      `Connected to ${channels.length} channels: ${channels.join(', ')}`
+    // Save refreshed tokens
+    authProvider.onRefresh(
+      async (userId: string, newTokenData: AccessToken) => {
+        await Bun.write(
+          `./tokens.${userId}.json`,
+          JSON.stringify(newTokenData, null, 2)
+        ).catch(err => {
+          console.error(`Failed to save token: ${err.message}`);
+        });
+      }
     );
-  });
+
+    await authProvider.addUserForToken(tokenData, ['chat']);
+
+    const channels = (Bun.env.TWITCH_CHANNELS as string).split(',') as string[];
+    
+    // !commands lives here so we can grab the list of commands from the variable.
+    const available = createBotCommand('commands', (_, { say }) => {
+      const commandList = commands.map(command => `!${command.name}`).join(', ');
+      say(`Look what I can do! avalonEUREKA -> [${commandList}]`);
+    });
+    commands.push(available);
+
+    // Initialize bot with error handling
+    const bot = new Bot({ authProvider, channels, commands });
+    
+    try {
+      await bot.api.requestScopesForUser(parseInt(userId), appImpliedScopes);
+    } catch (error) {
+      console.error('Failed to request scopes:', error);
+      // Continue anyway since this might be optional
+    }
+
+    // Set up event handlers
+    bot.onConnect(() => {
+      console.log(`Twitch: Connected to ${channels.length} channels: ${channels.join(', ')}`);
+    });
+    
+    bot.onDisconnect((graceful) => {
+      console.log(`Twitch: Disconnected ${graceful ? 'gracefully' : 'unexpectedly'}`);
+    });
+
+    return bot;
+  } catch (error) {
+    console.error('Twitch initialization error:', error);
+    throw error;
+  }
 };
