@@ -1,4 +1,13 @@
-import { Client, Events, GatewayIntentBits } from 'discord.js';
+import { 
+  Client, 
+  Events, 
+  GatewayIntentBits, 
+  REST, 
+  Routes,
+  Collection 
+} from 'discord.js';
+
+import { commands } from './commands';
 
 export const init = async () => {
   // Validate environment variables
@@ -6,12 +15,63 @@ export const init = async () => {
     throw new Error('DISCORD_TOKEN environment variable is required');
   }
 
-  // Create a new Client instance
-  const discord = new Client({ intents: [GatewayIntentBits.Guilds] });
+  // Create a new Client instance with necessary intents
+  const discord = new Client({ 
+    intents: [
+      GatewayIntentBits.Guilds, 
+      GatewayIntentBits.GuildMessages
+    ] 
+  });
+
+  // Store commands for interaction handling
+  // @ts-ignore - We've extended the Client type in discord.d.ts
+  discord.commands = commands as Collection<string, any>;
+
+  // Register slash commands with Discord API
+  const rest = new REST({ version: '10' }).setToken(Bun.env.DISCORD_TOKEN);
+  // @ts-ignore - Commands are correctly typed but TypeScript is being cautious
+  const commandsData = Array.from(commands.values()).map(command => command.data.toJSON());
 
   // Set up event handlers
-  discord.once(Events.ClientReady, client => {
+  discord.once(Events.ClientReady, async client => {
     console.log(`Discord: Ready! Logged in as ${client.user.tag}`);
+    
+    try {
+      // Global commands for all guilds the bot is in
+      if (client.application) {
+        console.log('Started refreshing application (/) commands.');
+        
+        await rest.put(
+          Routes.applicationCommands(client.application.id),
+          { body: commandsData },
+        );
+        
+        console.log('Successfully reloaded application (/) commands.');
+      }
+    } catch (error) {
+      console.error('Error registering slash commands:', error);
+    }
+  });
+
+  // Handle slash command interactions
+  discord.on(Events.InteractionCreate, async interaction => {
+    if (!interaction.isChatInputCommand()) return;
+
+    // @ts-ignore - We've extended the Client type in discord.d.ts
+    const command = discord.commands.get(interaction.commandName);
+    if (!command) return;
+
+    try {
+      await command.execute(interaction);
+    } catch (error) {
+      console.error(`Error executing command ${interaction.commandName}:`, error);
+      const content = 'There was an error executing this command!';
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({ content, ephemeral: true });
+      } else {
+        await interaction.reply({ content, ephemeral: true });
+      }
+    }
   });
 
   discord.on(Events.Error, error => {
