@@ -5,10 +5,8 @@ import {
 } from '@twurple/auth';
 import { Bot, BotCommand, createBotCommand } from '@twurple/easy-bot';
 
-import { punt } from './commands/punt';
-import { slap } from './commands/slap';
-
-const commands: BotCommand[] = [punt, slap];
+// Import commands from central registry
+import { commands } from './commands';
 
 // Keep existing scopes as requested
 const appImpliedScopes: string[] = [
@@ -87,15 +85,18 @@ export const init = async () => {
 
     const channels = (Bun.env.TWITCH_CHANNELS as string).split(',') as string[];
     
-    // !commands lives here so we can grab the list of commands from the variable.
+    // Create a copy of the commands array to avoid modifying the original
+    const botCommands = [...commands];
+    
+    // Add the !commands command to list available commands
     const available = createBotCommand('commands', (_, { say }) => {
-      const commandList = commands.map(command => `!${command.name}`).join(', ');
+      const commandList = botCommands.map(command => `!${command.name}`).join(', ');
       say(`Look what I can do! avalonEUREKA -> [${commandList}]`);
     });
-    commands.push(available);
+    botCommands.push(available);
 
     // Initialize bot with error handling
-    const bot = new Bot({ authProvider, channels, commands });
+    const bot = new Bot({ authProvider, channels, commands: botCommands });
     
     try {
       await bot.api.requestScopesForUser(parseInt(userId), appImpliedScopes);
