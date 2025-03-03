@@ -241,29 +241,46 @@ async function handleSearchQuote(interaction: ChatInputCommandInteraction) {
     return;
   }
   
-  // Search for quotes
-  const result = await db.select().from(schema.quotes)
-    .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`)
-    .limit(1);
+  // First, count total matches
+  const countResult = await db.select({ 
+    count: sql`COUNT(*)` 
+  }).from(schema.quotes)
+    .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`);
   
-  if (result.length === 0) {
+  const totalMatches = Number(countResult[0].count);
+  
+  if (totalMatches === 0) {
     await interaction.editReply(`No quotes found containing "${searchText}"`);
     return;
   }
+  
+  // Get a random matching quote (more interesting than always the first)
+  const result = await db.select().from(schema.quotes)
+    .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`)
+    .orderBy(sql`RANDOM()`)
+    .limit(1);
   
   const quote = result[0];
   
   // Create a nice embed for the quote
   const embed = new EmbedBuilder()
     .setColor(0x0099FF)
-    .setTitle(`Quote #${quote.id}`)
+    .setTitle(totalMatches === 1 ? `Quote #${quote.id}` : `Quote #${quote.id} (${totalMatches} matches)`)
     .setDescription(`"${quote.text}"`)
     .addFields(
       { name: 'Said by', value: quote.quotee, inline: true },
       { name: 'Year', value: `${quote.year}`, inline: true },
       { name: 'Added by', value: quote.quoter, inline: true }
-    )
-    .setFooter({ text: `Quote #${quote.id}` });
+    );
+  
+  // Add footer with match info if multiple matches
+  if (totalMatches > 1) {
+    embed.setFooter({ 
+      text: `${totalMatches} quotes match "${searchText}". Try the search again for a different result.` 
+    });
+  } else {
+    embed.setFooter({ text: `Quote #${quote.id}` });
+  }
   
   await interaction.editReply({ embeds: [embed] });
 }

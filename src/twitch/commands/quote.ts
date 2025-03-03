@@ -30,7 +30,7 @@ export const quote = createBotCommand(
 
         const quote = result[0];
         say(
-          `I found this quote: "${quote.text}" - ${quote.quotee} (#${quote.id}, ${quote.year})`
+          `I found this quote: “${quote.text}” - ${quote.quotee} (#${quote.id}, ${quote.year})`
         );
       } else if (params[0] === 'latest') {
         // !quote latest - Get the most recently added quote
@@ -47,7 +47,7 @@ export const quote = createBotCommand(
 
         const quote = result[0];
         say(
-          `I found this quote: "${quote.text}" - ${quote.quotee} (#${quote.id}, ${quote.year})`
+          `I found this quote: “${quote.text}” ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
         );
       } else if (params[0] === 'add' && params.length > 1) {
         // !quote add <text> - <quotee> - Add new quote
@@ -92,7 +92,7 @@ export const quote = createBotCommand(
           say('Failed to add quote. Please try again later? avalonANGY');
         }
       } else if (params[0] === 'search' && params.length > 1) {
-        // !quote search <text> - Search for quotes
+        // !quote search <text> - Search for quotes with improved results
         const searchText = params.slice(1).join(' ').trim();
 
         if (searchText.length < 3) {
@@ -100,21 +100,40 @@ export const quote = createBotCommand(
           return;
         }
 
+        // First, count the total matches
+        const countResult = await db
+          .select({
+            count: sql`COUNT(*)`,
+          })
+          .from(schema.quotes)
+          .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`);
+
+        const totalMatches = Number(countResult[0].count);
+
+        if (totalMatches === 0) {
+          say(`No quotes found containing “${searchText}”`);
+          return;
+        }
+
+        // Get a random match from the results (more interesting than always the first)
         const result = await db
           .select()
           .from(schema.quotes)
           .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`)
+          .orderBy(sql`RANDOM()`)
           .limit(1);
 
-        if (result.length === 0) {
-          say(`No quotes found containing "${searchText}"`);
-          return;
-        }
-
         const quote = result[0];
-        say(
-          `Quote #${quote.id}: "${quote.text}" - ${quote.quotee} (${quote.year})`
-        );
+
+        if (totalMatches === 1) {
+          say(
+            `I found this quote: “${quote.text}” ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
+          );
+        } else {
+          say(
+            `I found ${totalMatches} quotes with “${searchText}”. Here's one: “${quote.text}” ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
+          );
+        }
       } else if (!isNaN(Number(params[0]))) {
         // !quote <id> - Get quote by ID
         const id = Number(params[0]);
@@ -131,7 +150,7 @@ export const quote = createBotCommand(
 
         const quote = result[0];
         say(
-          `Quote #${quote.id}: "${quote.text}" - ${quote.quotee} (${quote.year})`
+          `Quote #${quote.id}: “${quote.text}” - ${quote.quotee} (${quote.year})`
         );
       } else {
         // Unknown subcommand
