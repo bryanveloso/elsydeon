@@ -8,6 +8,7 @@ import * as schema from '../../db/schema';
 // !quote add <text> - <quotee> - add a new quote
 // !quote <id> - get specific quote by ID
 // !quote search <text> - search for quotes containing text
+// !quote latest - get the most recently added quote
 
 export const quote = createBotCommand(
   'quote',
@@ -26,6 +27,20 @@ export const quote = createBotCommand(
         const quote = result[0];
         say(`Quote #${quote.id}: "${quote.text}" - ${quote.quotee} (${quote.year})`);
       } 
+      else if (params[0] === 'latest') {
+        // !quote latest - Get the most recently added quote
+        const result = await db.select().from(schema.quotes)
+          .orderBy(sql`${schema.quotes.id} DESC`)
+          .limit(1);
+        
+        if (result.length === 0) {
+          say('No quotes found! Add some with !quote add <text> - <quotee>');
+          return;
+        }
+        
+        const quote = result[0];
+        say(`Latest Quote #${quote.id}: "${quote.text}" - ${quote.quotee} (${quote.year}), added by ${quote.quoter}`);
+      }
       else if (params[0] === 'add' && params.length > 1) {
         // !quote add <text> - <quotee> - Add new quote
         if (!userInfo.isBroadcaster && !userInfo.isMod) {
@@ -102,7 +117,7 @@ export const quote = createBotCommand(
       }
       else {
         // Unknown subcommand
-        say('Usage: !quote, !quote <id>, !quote add <text> - <quotee>, or !quote search <text>');
+        say('Usage: !quote, !quote latest, !quote <id>, !quote add <text> - <quotee>, or !quote search <text>');
       }
     } catch (error) {
       console.error('Error in quote command:', error);
