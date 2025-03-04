@@ -5,29 +5,28 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun run src/index.ts",
-    "build": "bun run build.js",
-    "dev:web": "bun run build && bun --watch src/index.ts"
+    "build": "bun run build.ts",
+    "dev:web": "bun run build && bun --watch src/index.ts",
+    "dev:all": "bun run build.ts -- -w"
   },
   "devDependencies": {
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "bun-types": "latest",
-    "drizzle-kit": "^0.20.18",
-    "esbuild": "^0.25.0"
+    "drizzle-kit": "^0.20.18"
   },
   "peerDependencies": {
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@elysiajs/html": "^1.2.0",
-    "@elysiajs/static": "^1.2.0",
+    "@tailwindcss/cli": "^4.0.9",
     "@twurple/api": "^7.2.1",
     "@twurple/auth": "^7.2.1",
     "@twurple/easy-bot": "^7.2.1",
     "discord.js": "^14.18.0",
     "drizzle-orm": "^0.29.5",
-    "elysia": "^1.2.24",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.9"
   }
 }

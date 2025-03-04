@@ -39,7 +39,9 @@ const App: React.FC = () => {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'latest' | 'random' | 'search'>('latest');
+  const [activeTab, setActiveTab] = useState<'latest' | 'random' | 'search'>(
+    'latest'
+  );
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fetch quotes based on active tab
@@ -47,10 +49,10 @@ const App: React.FC = () => {
     const fetchQuotes = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         let endpoint = '/api/quotes/latest';
-        
+
         if (activeTab === 'random') {
           endpoint = '/api/quotes/random';
         } else if (activeTab === 'search' && searchTerm.length >= 3) {
@@ -59,15 +61,15 @@ const App: React.FC = () => {
           setLoading(false);
           return;
         }
-        
+
         const response = await fetch(endpoint);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         if (Array.isArray(data)) {
           setQuotes(data);
         } else if (data.error) {
@@ -80,7 +82,7 @@ const App: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     fetchQuotes();
   }, [activeTab, searchTerm]);
 
@@ -93,49 +95,53 @@ const App: React.FC = () => {
   return (
     <div className="container">
       <header className="header">
-        <h1>Elsydeon <span>Quote Manager</span></h1>
+        <h1>
+          <span>Quote Manager</span>
+        </h1>
       </header>
-      
+
       <div className="search-container">
         <form className="search-form" onSubmit={handleSearch}>
-          <input 
-            type="text" 
-            className="search-input" 
-            placeholder="Search quotes..." 
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search quotes..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             required
             minLength={3}
           />
-          <button type="submit" className="btn">Search</button>
+          <button type="submit" className="btn">
+            Search
+          </button>
         </form>
       </div>
-      
+
       <div className="tabs">
-        <button 
-          className={`tab ${activeTab === 'latest' ? 'active' : ''}`} 
+        <button
+          className={`tab ${activeTab === 'latest' ? 'active' : ''}`}
           onClick={() => setActiveTab('latest')}
         >
           Latest Quotes
         </button>
-        <button 
-          className={`tab ${activeTab === 'random' ? 'active' : ''}`} 
+        <button
+          className={`tab ${activeTab === 'random' ? 'active' : ''}`}
           onClick={() => setActiveTab('random')}
         >
           Random Quotes
         </button>
         {searchTerm && (
-          <button 
-            className={`tab ${activeTab === 'search' ? 'active' : ''}`} 
+          <button
+            className={`tab ${activeTab === 'search' ? 'active' : ''}`}
             onClick={() => setActiveTab('search')}
           >
             Search Results
           </button>
         )}
       </div>
-      
+
       {error && <div className="error">{error}</div>}
-      
+
       {loading ? (
         <LoadingSpinner />
       ) : quotes.length > 0 ? (
@@ -146,8 +152,8 @@ const App: React.FC = () => {
         </div>
       ) : (
         <div style={{ textAlign: 'center', margin: '3rem 0' }}>
-          {activeTab === 'search' 
-            ? 'No quotes found matching your search.' 
+          {activeTab === 'search'
+            ? 'No quotes found matching your search.'
             : 'No quotes available.'}
         </div>
       )}
