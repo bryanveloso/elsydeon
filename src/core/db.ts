@@ -6,7 +6,7 @@ import { count } from 'drizzle-orm';
 import * as schema from './schema';
 
 // Database setup
-const dbPath = Bun.env.DATABASE_PATH || 'quotes.db';
+const dbPath = Bun.env.DATABASE_PATH || './data/quotes.db';
 console.log(`Connected to database at ${dbPath}`);
 const sqlite = new Database(dbPath);
 export const db = drizzle(sqlite);
