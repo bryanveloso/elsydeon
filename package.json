@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@fontsource/courier-prime": "^5.2.5",
+    "@fontsource/geist-sans": "^5.2.5",
     "@tailwindcss/cli": "^4.0.9",
     "@tailwindcss/vite": "^4.0.9",
     "@twurple/api": "^7.2.1",

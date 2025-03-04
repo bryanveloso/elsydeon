@@ -5,6 +5,7 @@
       "name": "elsydeon",
       "dependencies": {
         "@fontsource/courier-prime": "^5.2.5",
+        "@fontsource/geist-sans": "^5.2.5",
         "@tailwindcss/cli": "^4.0.9",
         "@tailwindcss/vite": "^4.0.9",
         "@twurple/api": "^7.2.1",
@@ -159,6 +160,8 @@
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.19.12", "", { "os": "win32", "cpu": "x64" }, "sha512-T1QyPSDCyMXaO3pzBkF96E8xMkiRYbUEZADd29SyPGabqxMViNoii+NcK7eWJAEoU6RZyEm5lVSIjTmcdoB9HA=="],
 
     "@fontsource/courier-prime": ["@fontsource/courier-prime@5.2.5", "", {}, "sha512-je73pcLzFavKXNPBZP07paiTqK3DS5wUl3JDpcsxrBbVGtznK975WwEIZ+Bd8zC2eCebPJVkddJAY8qQMv2TBQ=="],
+
+    "@fontsource/geist-sans": ["@fontsource/geist-sans@5.2.5", "", {}, "sha512-anllOHyJbElRs9fV15TeDRqAeb1IKm4bSknPl6ZMoyPTx1BBy7logudcUwpNjmQLkzn4Q0JGQLRCUKJYoyST6A=="],
 
     "@hono/node-server": ["@hono/node-server@1.13.8", "", { "peerDependencies": { "hono": "^4" } }, "sha512-fsn8ucecsAXUoVxrUil0m13kOEq4mkX4/4QozCqmY+HpGfKl74OYSn8JcMA8GnG0ClfdRI4/ZSeG7zhFaVg+wg=="],
 

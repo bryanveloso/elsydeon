@@ -8,7 +8,7 @@
   --gray: #1f1f23;
   --light-gray: #efeff1;
   --text: #fff;
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Geist Sans", sans-serif;
   --font-mono: "Courier Prime", monospace;
 }
 
