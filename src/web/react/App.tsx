@@ -132,7 +132,7 @@ const App: React.FC = () => {
           />
           <div>
             <h1 className="flex-1">
-              <span className="font-display text-4xl">
+              <span className="font-display text-3xl sm:text-4xl">
                 Shit{' '}
                 <span className="bg-gradient-to-br from-amber-300 to-emerald-300 bg-clip-text text-transparent">
                   Crusaders
