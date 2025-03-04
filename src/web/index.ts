@@ -55,20 +55,22 @@ export const init = async (port: number = 3000) => {
         }
       }
 
-      // Static files - JavaScript and CSS
-      if (path === '/app.js' || path === '/styles.css') {
-        const file = Bun.file(join(distDir, path.slice(1)));
+      // Serve assets from Vite build
+      if (path.startsWith('/assets/')) {
+        const file = Bun.file(join(distDir, 'web', path));
+        const contentType = path.endsWith('.js') 
+          ? 'application/javascript' 
+          : path.endsWith('.css')
+            ? 'text/css'
+            : 'application/octet-stream';
+        
         return new Response(file, {
-          headers: { 
-            'Content-Type': path.endsWith('.js') 
-              ? 'application/javascript' 
-              : 'text/css'
-          }
+          headers: { 'Content-Type': contentType }
         });
       }
 
-      // For all other routes, serve index.html (SPA pattern)
-      return new Response(Bun.file(join(distDir, 'index.html')), {
+      // For all other routes, serve the Vite-built index.html (SPA pattern)
+      return new Response(Bun.file(join(distDir, 'web', 'index.html')), {
         headers: { 'Content-Type': 'text/html' }
       });
     }

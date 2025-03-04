@@ -3,15 +3,9 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun --watch src/index.ts",
     "start": "bun run src/index.ts",
     "build": "vite build",
-    "dev:web": "vite",
-    "dev:api": "bun --watch src/api/index.ts",
-    "dev:bot": "bun --watch src/bot/index.ts",
-    "preview": "vite preview",
-    "build:all": "vite build && bun run build.ts",
-    "dev:full": "concurrently \"bun run dev:web\" \"bun run dev:api\""
+    "dev": "bun --watch src/api/index.ts & vite"
   },
   "devDependencies": {
     "@types/react": "^19.0.10",

@@ -20,6 +20,10 @@ if [ -z "$DISCORD_TOKEN" ] || [ -z "$TWITCH_CLIENT_ID" ] || [ -z "$TWITCH_CLIENT
   exit 1
 fi
 
+# Build frontend assets with Vite
+echo "Building frontend assets..."
+bun run build
+
 # Build the Docker image
 echo "Building Docker image..."
 docker build -t elsydeon:latest .

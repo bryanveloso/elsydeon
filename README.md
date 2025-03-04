@@ -1,6 +1,6 @@
 # Elsydeon
 
-A multipurpose Discord and Twitch chat bot with web interface for managing quotes.
+A derpy chat bot for Discord and Twitch, made specifically for The Crusaders.
 
 ## Project Structure
 
@@ -19,24 +19,15 @@ A multipurpose Discord and Twitch chat bot with web interface for managing quote
 
 ## Development
 
-Different components can be run independently:
+### Local Development (Recommended)
+
+For frontend development with hot-reloading and API:
 
 ```bash
-# Run everything (bot + web server)
 bun run dev
-
-# Only run the Discord and Twitch bots
-bun run dev:bot
-
-# Only run the web interface
-bun run dev:web
-
-# Only run the API server
-bun run dev:api
-
-# Watch the UI code for changes
-bun run dev:ui
 ```
+
+This starts both the frontend (Vite dev server) and API server.
 
 ## Setup
 
@@ -67,12 +58,6 @@ bun run dev
 
 # Run in production mode
 bun run start
-
-# Run just the web interface
-bun run dev:web
-
-# Run just the bots
-bun run dev:bot
 ```
 
 ### With Docker
