@@ -58,9 +58,9 @@ async function buildApp(dev = false) {
     console.log('Processing CSS with Tailwind...');
     
     // Use separate command for dev/prod to avoid template literal issues
-    const tailwindCmd = dev 
-      ? await $`tailwindcss -i ./src/web/public/styles.css -o ./dist/styles.css`
-      : await $`tailwindcss -i ./src/web/public/styles.css -o ./dist/styles.css --minify`;
+    const tailwindCmd = dev
+      ? await $`tailwindcss -i ./src/web/styles.css -o ./dist/styles.css`
+      : await $`tailwindcss -i ./src/web/styles.css -o ./dist/styles.css --minify`;
     
     if (tailwindCmd.exitCode !== 0) {
       console.error('CSS processing failed');
