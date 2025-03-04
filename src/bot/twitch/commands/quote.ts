@@ -9,6 +9,8 @@ import * as schema from '../../../core/schema';
 // !quote <id> - get specific quote by ID
 // !quote search <text> - search for quotes containing text
 // !quote latest - get the most recently added quote
+// !quote user <username> - search for quotes said by a specific user
+// !quote user me/my - search for quotes said by yourself
 
 export const quote = createBotCommand(
   'quote',
@@ -152,10 +154,73 @@ export const quote = createBotCommand(
         say(
           `Quote #${quote.id}: “${quote.text}” - ${quote.quotee} (${quote.year})`
         );
+      } else if (params[0] === 'user' && params.length > 1) {
+        // !quote user <username> - Search for quotes said by a specific user
+        const username = params.slice(1).join(' ').trim();
+
+        if (username.length < 2) {
+          say('Username must be at least 2 characters long.');
+          return;
+        }
+
+        // Check if searching for themselves
+        const isSelf = username.toLowerCase() === userInfo.displayName.toLowerCase() || 
+                       username.toLowerCase() === userInfo.userName.toLowerCase() || 
+                       username.toLowerCase() === 'me' || 
+                       username.toLowerCase() === 'my';
+        
+        const searchName = isSelf ? userInfo.displayName : username;
+
+        // Count matches for this user
+        const countResult = await db
+          .select({
+            count: sql`COUNT(*)`,
+          })
+          .from(schema.quotes)
+          .where(sql`${schema.quotes.quotee} LIKE ${'%' + searchName + '%'}`);
+
+        const totalMatches = Number(countResult[0].count);
+
+        if (totalMatches === 0) {
+          say(`No quotes found from "${isSelf ? 'you' : searchName}"`);
+          return;
+        }
+
+        // Get a random match from the results
+        const result = await db
+          .select()
+          .from(schema.quotes)
+          .where(sql`${schema.quotes.quotee} LIKE ${'%' + searchName + '%'}`)
+          .orderBy(sql`RANDOM()`)
+          .limit(1);
+
+        const quote = result[0];
+
+        if (totalMatches === 1) {
+          if (isSelf) {
+            say(
+              `I found this quote from you: "${quote.text}" ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
+            );
+          } else {
+            say(
+              `I found this quote from ${searchName}: "${quote.text}" ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
+            );
+          }
+        } else {
+          if (isSelf) {
+            say(
+              `I found ${totalMatches} quotes from you. Here's one: "${quote.text}" ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
+            );
+          } else {
+            say(
+              `I found ${totalMatches} quotes from ${searchName}. Here's one: "${quote.text}" ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
+            );
+          }
+        }
       } else {
         // Unknown subcommand
         say(
-          'Usage: !quote, !quote latest, !quote <id>, !quote add <text> - <quotee>, or !quote search <text>'
+          'Usage: !quote, !quote latest, !quote <id>, !quote add <text> - <quotee>, !quote search <text>, or !quote user <username/me>'
         );
       }
     } catch (error) {

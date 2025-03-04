@@ -55,6 +55,16 @@ export const data = new SlashCommandBuilder()
           .setDescription('The text to search for')
           .setRequired(true)
       )
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName('user')
+      .setDescription('Search for quotes said by a specific user')
+      .addStringOption(option =>
+        option.setName('name')
+          .setDescription('The name of the person who said the quote')
+          .setRequired(true)
+      )
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -77,6 +87,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         break;
       case 'search':
         await handleSearchQuote(interaction);
+        break;
+      case 'user':
+        await handleUserQuote(interaction);
         break;
       default:
         await interaction.reply('Unknown subcommand');
@@ -278,6 +291,85 @@ async function handleSearchQuote(interaction: ChatInputCommandInteraction) {
     embed.setFooter({ 
       text: `${totalMatches} quotes match "${searchText}". Try the search again for a different result.` 
     });
+  } else {
+    embed.setFooter({ text: `Quote #${quote.id}` });
+  }
+  
+  await interaction.editReply({ embeds: [embed] });
+}
+
+async function handleUserQuote(interaction: ChatInputCommandInteraction) {
+  await interaction.deferReply();
+  
+  // Get username
+  const username = interaction.options.getString('name', true);
+  
+  if (username.length < 2) {
+    await interaction.editReply('Username must be at least 2 characters long.');
+    return;
+  }
+  
+  // Check if searching for themselves
+  const isSelf = username.toLowerCase() === interaction.user.username.toLowerCase() || 
+                 username.toLowerCase() === interaction.user.globalName?.toLowerCase() || 
+                 username.toLowerCase() === 'me' ||
+                 username.toLowerCase() === 'my';
+  
+  const searchName = isSelf ? interaction.user.username : username;
+  
+  // Count matches for this user
+  const countResult = await db.select({ 
+    count: sql`COUNT(*)` 
+  }).from(schema.quotes)
+    .where(sql`${schema.quotes.quotee} LIKE ${'%' + searchName + '%'}`);
+  
+  const totalMatches = Number(countResult[0].count);
+  
+  if (totalMatches === 0) {
+    await interaction.editReply(isSelf ? 
+      'No quotes found from you.' : 
+      `No quotes found from "${searchName}"`
+    );
+    return;
+  }
+  
+  // Get a random matching quote
+  const result = await db.select().from(schema.quotes)
+    .where(sql`${schema.quotes.quotee} LIKE ${'%' + searchName + '%'}`)
+    .orderBy(sql`RANDOM()`)
+    .limit(1);
+  
+  const quote = result[0];
+  
+  // Build the title
+  let title;
+  if (isSelf) {
+    title = totalMatches === 1 ? 
+      `Your Quote #${quote.id}` : 
+      `Your Quote #${quote.id} (${totalMatches} matches)`;
+  } else {
+    title = totalMatches === 1 ? 
+      `Quote #${quote.id} from ${searchName}` : 
+      `Quote #${quote.id} from ${searchName} (${totalMatches} matches)`;
+  }
+  
+  // Create a nice embed for the quote
+  const embed = new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setTitle(title)
+    .setDescription(`"${quote.text}"`)
+    .addFields(
+      { name: 'Said by', value: quote.quotee, inline: true },
+      { name: 'Year', value: `${quote.year}`, inline: true },
+      { name: 'Added by', value: quote.quoter, inline: true }
+    );
+  
+  // Add footer with match info if multiple matches
+  if (totalMatches > 1) {
+    const footerText = isSelf ?
+      `${totalMatches} quotes from you. Try the command again for a different result.` :
+      `${totalMatches} quotes from ${searchName}. Try the command again for a different result.`;
+    embed.setFooter({ text: footerText });
   } else {
     embed.setFooter({ text: `Quote #${quote.id}` });
   }

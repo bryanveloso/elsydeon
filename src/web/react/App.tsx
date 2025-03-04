@@ -44,6 +44,7 @@ const App: React.FC = () => {
     'latest'
   );
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchType, setSearchType] = useState<'content' | 'user'>('content');
 
   // Fetch quotes based on active tab
   useEffect(() => {
@@ -56,11 +57,20 @@ const App: React.FC = () => {
 
         if (activeTab === 'random') {
           endpoint = '/api/quotes/random';
-        } else if (activeTab === 'search' && searchTerm.length >= 3) {
-          endpoint = `/api/quotes/search?q=${encodeURIComponent(searchTerm)}`;
         } else if (activeTab === 'search') {
-          setLoading(false);
-          return;
+          // Validate search term length based on search type
+          const minLength = searchType === 'user' ? 2 : 3;
+          if (searchTerm.length < minLength) {
+            setLoading(false);
+            return;
+          }
+
+          // Use appropriate endpoint based on search type
+          if (searchType === 'content') {
+            endpoint = `/api/quotes/search?q=${encodeURIComponent(searchTerm)}`;
+          } else if (searchType === 'user') {
+            endpoint = `/api/quotes/user/${encodeURIComponent(searchTerm)}`;
+          }
         }
 
         const response = await fetch(endpoint);
@@ -85,7 +95,7 @@ const App: React.FC = () => {
     };
 
     fetchQuotes();
-  }, [activeTab, searchTerm]);
+  }, [activeTab, searchTerm, searchType]);
 
   // Handle search form submission
   const handleSearch = (e: React.FormEvent) => {
@@ -125,18 +135,45 @@ const App: React.FC = () => {
 
       <div className="py-6">
         <form className="search-form" onSubmit={handleSearch}>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search quotes..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            required
-            minLength={3}
-          />
-          <button type="submit" className="btn">
-            Search
-          </button>
+          <div className="flex flex-col mb-2">
+            <div className="flex gap-4 mb-2">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="searchType"
+                  checked={searchType === 'content'}
+                  onChange={() => setSearchType('content')}
+                  className="mr-2"
+                />
+                Search in quotes
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="searchType"
+                  checked={searchType === 'user'}
+                  onChange={() => setSearchType('user')}
+                  className="mr-2"
+                />
+                Search by user
+              </label>
+            </div>
+          </div>
+          
+          <div className="flex w-full">
+            <input
+              type="text"
+              className="search-input flex-grow"
+              placeholder={searchType === 'content' ? "Search quotes..." : "Search by username..."}
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              required
+              minLength={searchType === 'content' ? 3 : 2}
+            />
+            <button type="submit" className="btn ml-2">
+              Search
+            </button>
+          </div>
         </form>
       </div>
 
@@ -153,7 +190,9 @@ const App: React.FC = () => {
       ) : (
         <div style={{ textAlign: 'center', margin: '3rem 0' }}>
           {activeTab === 'search'
-            ? 'No quotes found matching your search.'
+            ? searchType === 'content'
+              ? 'No quotes found matching your search.'
+              : 'No quotes found from this user.'
             : 'No quotes available.'}
         </div>
       )}

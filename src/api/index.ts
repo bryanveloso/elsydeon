@@ -52,6 +52,22 @@ export const apiRoutes = {
     return Response.json(quotes);
   },
   
+  // GET /api/quotes/user/:name
+  async getQuotesByUser(username: string) {
+    if (!username || username.length < 2) {
+      return Response.json(
+        { error: 'Username must be at least 2 characters' },
+        { status: 400 }
+      );
+    }
+
+    const quotes = await db.select().from(schema.quotes)
+      .where(sql`${schema.quotes.quotee} LIKE ${'%' + username + '%'}`)
+      .limit(20);
+
+    return Response.json(quotes);
+  },
+  
   // GET /api/quotes/:id
   async getQuoteById(id: number) {
     if (isNaN(id)) {
@@ -96,6 +112,12 @@ if (import.meta.main) {
 
       if (path === '/api/quotes/search') {
         return apiRoutes.searchQuotes(req);
+      }
+
+      // Check if it's a user quotes request
+      const userMatch = path.match(/^\/api\/quotes\/user\/(.+)$/);
+      if (userMatch) {
+        return apiRoutes.getQuotesByUser(decodeURIComponent(userMatch[1]));
       }
 
       // Check if it's a quote ID request
