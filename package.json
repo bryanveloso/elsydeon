@@ -5,24 +5,29 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun run src/index.ts",
-    "build": "bun run build.ts",
-    "dev:web": "bun run build && bun --watch src/web/index.ts",
+    "build": "vite build",
+    "dev:web": "vite",
     "dev:api": "bun --watch src/api/index.ts",
-    "dev:bot": "bun --watch src/bot/index.ts", 
-    "dev:all": "bun run build.ts -- -w",
-    "dev:ui": "bun run build.ts -- -w"
+    "dev:bot": "bun --watch src/bot/index.ts",
+    "preview": "vite preview",
+    "build:all": "vite build && bun run build.ts",
+    "dev:full": "concurrently \"bun run dev:web\" \"bun run dev:api\""
   },
   "devDependencies": {
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
     "bun-types": "latest",
-    "drizzle-kit": "^0.20.18"
+    "drizzle-kit": "^0.20.18",
+    "vite": "^6.2.0"
   },
   "peerDependencies": {
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@fontsource/courier-prime": "^5.2.5",
     "@tailwindcss/cli": "^4.0.9",
+    "@tailwindcss/vite": "^4.0.9",
     "@twurple/api": "^7.2.1",
     "@twurple/auth": "^7.2.1",
     "@twurple/easy-bot": "^7.2.1",

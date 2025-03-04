@@ -15,14 +15,15 @@ interface Quote {
 const QuoteCard: React.FC<{ quote: Quote }> = ({ quote }) => {
   return (
     <div className="quote-card">
-      <span className="quote-id">#{quote.id}</span>
-      <p className="quote-text">{quote.text}</p>
-      <div className="quote-meta">
-        <span>— {quote.quotee}</span>
+      <p className="font-mono text-xl text-pretty">
+        <span className="text-slate-200">&lt;{quote.quotee}&gt;&nbsp;</span>
+        <span>{quote.text}</span>
+      </p>
+      <div className="text-[0.70rem] text-slate-600 flex gap-1">
+        <span className="underline underline-offset-4">#{quote.id}</span>
+        <span>/</span>
         <span>{quote.year}</span>
-      </div>
-      <div className="quote-meta" style={{ marginTop: '0.5rem', fontSize: '0.75rem' }}>
-        <span>Added by: {quote.quoter}</span>
+        {/* <span className="text-xs">Added by: {quote.quoter}</span> */}
       </div>
     </div>
   );
@@ -93,14 +94,36 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <header className="header">
-        <h1>
-          <span>Quote Manager</span>
+    <div className="max-w-xl py-12 mx-auto">
+      <header className="flex">
+        <h1 className="flex-1">
+          <span className="">Avalonstar Quote Database</span>
         </h1>
+        <div className="flex gap-4">
+          <button
+            className={`tab ${activeTab === 'latest' ? 'active' : ''}`}
+            onClick={() => setActiveTab('latest')}
+          >
+            Latest Quotes
+          </button>
+          <button
+            className={`tab ${activeTab === 'random' ? 'active' : ''}`}
+            onClick={() => setActiveTab('random')}
+          >
+            Random Quotes
+          </button>
+          {searchTerm && (
+            <button
+              className={`tab ${activeTab === 'search' ? 'active' : ''}`}
+              onClick={() => setActiveTab('search')}
+            >
+              Search Results
+            </button>
+          )}
+        </div>
       </header>
 
-      <div className="search-container">
+      <div className="py-6">
         <form className="search-form" onSubmit={handleSearch}>
           <input
             type="text"
@@ -117,35 +140,12 @@ const App: React.FC = () => {
         </form>
       </div>
 
-      <div className="tabs">
-        <button
-          className={`tab ${activeTab === 'latest' ? 'active' : ''}`}
-          onClick={() => setActiveTab('latest')}
-        >
-          Latest Quotes
-        </button>
-        <button
-          className={`tab ${activeTab === 'random' ? 'active' : ''}`}
-          onClick={() => setActiveTab('random')}
-        >
-          Random Quotes
-        </button>
-        {searchTerm && (
-          <button
-            className={`tab ${activeTab === 'search' ? 'active' : ''}`}
-            onClick={() => setActiveTab('search')}
-          >
-            Search Results
-          </button>
-        )}
-      </div>
-
       {error && <div className="error">{error}</div>}
 
       {loading ? (
         <LoadingSpinner />
       ) : quotes.length > 0 ? (
-        <div className="quote-list">
+        <div className="grid gap-6 quote-list">
           {quotes.map(quote => (
             <QuoteCard key={quote.id} quote={quote} />
           ))}

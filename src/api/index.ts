@@ -15,17 +15,21 @@ export const apiRoutes = {
   
   // GET /api/quotes/latest
   async getLatestQuotes() {
-    const latest = await db.select().from(schema.quotes)
+    const latest = await db
+      .select()
+      .from(schema.quotes)
       .orderBy(sql`${schema.quotes.id} DESC`)
-      .limit(10);
+      .limit(25);
     return Response.json(latest);
   },
   
   // GET /api/quotes/random
   async getRandomQuotes() {
-    const random = await db.select().from(schema.quotes)
+    const random = await db
+      .select()
+      .from(schema.quotes)
       .orderBy(sql`RANDOM()`)
-      .limit(10);
+      .limit(25);
     return Response.json(random);
   },
   
@@ -67,42 +71,42 @@ export const apiRoutes = {
 
 // Start standalone API server if this is the main entry point
 if (import.meta.main) {
-  const port = parseInt(Bun.env.API_PORT || '3002');
-  
+  const port = parseInt(Bun.env.API_PORT || '4000');
+
   console.log(`Starting API server on port ${port}...`);
-  
+
   Bun.serve({
     port,
     async fetch(req) {
       const url = new URL(req.url);
       const path = url.pathname;
-      
+
       // API Routes
       if (path === '/api/quotes') {
         return apiRoutes.getQuotes(req);
       }
-      
+
       if (path === '/api/quotes/latest') {
         return apiRoutes.getLatestQuotes();
       }
-      
+
       if (path === '/api/quotes/random') {
         return apiRoutes.getRandomQuotes();
       }
-      
+
       if (path === '/api/quotes/search') {
         return apiRoutes.searchQuotes(req);
       }
-      
+
       // Check if it's a quote ID request
       const idMatch = path.match(/^\/api\/quotes\/(\d+)$/);
       if (idMatch) {
         return apiRoutes.getQuoteById(parseInt(idMatch[1]));
       }
-      
+
       return new Response('Not Found', { status: 404 });
-    }
+    },
   });
-  
+
   console.log(`API server running at http://localhost:${port}`);
 }
