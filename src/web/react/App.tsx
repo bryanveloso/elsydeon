@@ -42,7 +42,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'latest' | 'random' | 'search'>(
-    'latest'
+    'random'
   );
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState<'content' | 'user'>('content');
