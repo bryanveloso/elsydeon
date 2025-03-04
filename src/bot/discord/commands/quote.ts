@@ -5,8 +5,8 @@ import {
   CommandInteraction
 } from 'discord.js';
 import { sql } from 'drizzle-orm';
-import { db } from '../../../core/db';
-import * as schema from '../../../core/schema';
+import { db } from '@core/db';
+import * as schema from '@core/schema';
 
 export const data = new SlashCommandBuilder()
   .setName('quote')

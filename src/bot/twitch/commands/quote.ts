@@ -1,7 +1,7 @@
 import { createBotCommand } from '@twurple/easy-bot';
 import { sql } from 'drizzle-orm';
-import { db } from '../../../core/db';
-import * as schema from '../../../core/schema';
+import { db } from '@core/db';
+import * as schema from '@core/schema';
 
 // Command to handle quotes in different forms:
 // !quote - get a random quote

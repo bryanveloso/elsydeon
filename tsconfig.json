@@ -17,6 +17,16 @@
     "allowJs": true,
     "types": [
       "bun-types" // add Bun global
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["src/core/*"],
+      "@db/*": ["src/db/*"],
+      "@bot/*": ["src/bot/*"],
+      "@discord/*": ["src/bot/discord/*"],
+      "@twitch/*": ["src/bot/twitch/*"],
+      "@web/*": ["src/web/*"],
+      "@api/*": ["src/api/*"]
+    }
   }
 }

@@ -1,6 +1,6 @@
-import { getQuoteCount, setupShutdownHandler } from './core/db';
-import { startBots } from './bot';
-import { init as webInit } from './web';
+import { getQuoteCount, setupShutdownHandler } from '@core/db';
+import { startBots } from '@bot/index';
+import { init as webInit } from '@web/index';
 
 // Add graceful shutdown handling
 setupShutdownHandler();

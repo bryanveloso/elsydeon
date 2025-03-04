@@ -1,5 +1,5 @@
-import { db, setupShutdownHandler } from '../core/db';
-import * as schema from '../core/schema';
+import { db, setupShutdownHandler } from '@core/db';
+import * as schema from '@core/schema';
 import { sql } from 'drizzle-orm';
 
 // Setup shutdown handler

@@ -1,4 +1,4 @@
-import { getQuoteCount, setupShutdownHandler } from '../core/db';
+import { getQuoteCount, setupShutdownHandler } from '@core/db';
 import { init as discordInit } from './discord';
 import { init as twitchInit } from './twitch';
 
