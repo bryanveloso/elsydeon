@@ -74,21 +74,38 @@ const App: React.FC = () => {
           }
         }
 
+        console.log(`Fetching from endpoint: ${endpoint}`);
         const response = await fetch(endpoint);
 
         if (!response.ok) {
+          console.error(`HTTP error ${response.status} from ${endpoint}`);
           throw new Error(`HTTP error ${response.status}`);
         }
 
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.error(`Invalid content type: ${contentType} from ${endpoint}`);
+          throw new Error(`Expected JSON but got ${contentType || 'unknown content type'}`);
+        }
+
         const data = await response.json();
+        console.log(`Received data type: ${Array.isArray(data) ? 'array' : typeof data}`);
 
         if (Array.isArray(data)) {
           setQuotes(data);
         } else if (data.error) {
           setError(data.error);
+        } else {
+          console.error('Unexpected data format:', data);
+          setError('Received unexpected data format from server');
         }
       } catch (err) {
-        setError('Failed to fetch quotes. Please try again later.');
+        // More detailed error message
+        let errorMessage = 'Failed to fetch quotes. Please try again later.';
+        if (err instanceof Error) {
+          errorMessage += ` (${err.message})`;
+        }
+        setError(errorMessage);
         console.error('Error fetching quotes:', err);
       } finally {
         setLoading(false);
