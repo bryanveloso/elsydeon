@@ -126,7 +126,7 @@ const App: React.FC = () => {
       <header className="bg-zinc-950 border-b border-zinc-800">
         <div className="mx-auto max-w-2xl flex gap-4 items-center pt-4">
           <img
-            src="/public/images/shake.gif"
+            src="/images/shake.gif"
             alt="Shake"
             className="size-24 -ml-1.5"
           />

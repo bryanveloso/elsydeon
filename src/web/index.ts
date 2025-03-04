@@ -88,6 +88,51 @@ export const init = async (port: number = 3000) => {
           headers: { 'Content-Type': contentType }
         });
       }
+      
+      // Serve images from public directory
+      if (path.startsWith('/images/')) {
+        // First try the production path (dist/web/images)
+        let file = Bun.file(join(distDir, 'web', 'images', path.substring(8)));
+        
+        // If file doesn't exist, try the development path (src/web/public/images)
+        if (!(await file.exists())) {
+          file = Bun.file(join(projectRoot, 'src', 'web', 'public', 'images', path.substring(8)));
+        }
+        
+        const contentType = path.endsWith('.png') 
+          ? 'image/png' 
+          : path.endsWith('.jpg') || path.endsWith('.jpeg')
+            ? 'image/jpeg'
+            : path.endsWith('.gif')
+              ? 'image/gif'
+              : path.endsWith('.svg')
+                ? 'image/svg+xml'
+                : 'application/octet-stream';
+        
+        return new Response(file, {
+          headers: { 'Content-Type': contentType }
+        });
+      }
+      
+      // Also handle /public/images/ path for development
+      if (path.startsWith('/public/images/')) {
+        const imagePath = path.substring(14); // Remove '/public/images/'
+        const file = Bun.file(join(projectRoot, 'src', 'web', 'public', 'images', imagePath));
+        
+        const contentType = path.endsWith('.png') 
+          ? 'image/png' 
+          : path.endsWith('.jpg') || path.endsWith('.jpeg')
+            ? 'image/jpeg'
+            : path.endsWith('.gif')
+              ? 'image/gif'
+              : path.endsWith('.svg')
+                ? 'image/svg+xml'
+                : 'application/octet-stream';
+        
+        return new Response(file, {
+          headers: { 'Content-Type': contentType }
+        });
+      }
 
       // For API routes that weren't handled above, return JSON error
       if (path.startsWith('/api/')) {
