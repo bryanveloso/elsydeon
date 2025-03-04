@@ -122,12 +122,34 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-6 lg:px-8 py-8">
-      <div className="mx-auto max-w-2xl">
-        <header className="flex">
-          <h1 className="flex-1">
-            <span className="font-bold">Avalonstar Quote Database</span>
-          </h1>
+    <>
+      <header className="bg-zinc-950 border-b border-zinc-800">
+        <div className="mx-auto max-w-2xl flex gap-4 items-center pt-4">
+          <img
+            src="/public/images/shake.gif"
+            alt="Shake"
+            className="size-24 -ml-1.5"
+          />
+          <div>
+            <h1 className="flex-1">
+              <span className="font-display text-4xl">
+                Shit{' '}
+                <span className="bg-gradient-to-br from-amber-300 to-emerald-300 bg-clip-text text-transparent">
+                  Crusaders
+                </span>{' '}
+                Say
+              </span>
+            </h1>
+            <h2 className="-mt-1.5">
+              <span className="text-xs text-slate-500">
+                A collection of &ldquo;moments&rdquo; by Avalonstar's Crusaders.
+              </span>
+            </h2>
+          </div>
+        </div>
+      </header>
+      <div className="mx-auto max-w-6xl px-6 lg:px-8 py-8">
+        <div className="mx-auto max-w-2xl">
           <div className="flex gap-4">
             <button
               className={`tab ${activeTab === 'latest' ? 'active' : ''}`}
@@ -150,83 +172,83 @@ const App: React.FC = () => {
               </button>
             )}
           </div>
-        </header>
 
-        <div className="py-6">
-          <form className="search-form" onSubmit={handleSearch}>
-            <div className="flex flex-col mb-2">
-              <div className="flex gap-4 mb-2">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="searchType"
-                    checked={searchType === 'content'}
-                    onChange={() => setSearchType('content')}
-                    className="mr-2"
-                  />
-                  Search in quotes
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="searchType"
-                    checked={searchType === 'user'}
-                    onChange={() => setSearchType('user')}
-                    className="mr-2"
-                  />
-                  Search by user
-                </label>
+          <div className="py-6">
+            <form className="search-form" onSubmit={handleSearch}>
+              <div className="flex flex-col mb-2">
+                <div className="flex gap-4 mb-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="searchType"
+                      checked={searchType === 'content'}
+                      onChange={() => setSearchType('content')}
+                      className="mr-2"
+                    />
+                    Search in quotes
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="searchType"
+                      checked={searchType === 'user'}
+                      onChange={() => setSearchType('user')}
+                      className="mr-2"
+                    />
+                    Search by user
+                  </label>
+                </div>
               </div>
-            </div>
 
-            <div className="mt-2 flex">
-              <div className="-mr-px grid grow grid-cols-1 focus-within:relative">
-                <input
-                  type="text"
-                  className="col-start-1 row-start-1 block w-full rounded-l-md bg-white py-1.5 pr-3 pl-10 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:pl-9 sm:text-sm/6"
-                  placeholder={
-                    searchType === 'content'
-                      ? 'Search quotes...'
-                      : 'Search by username...'
-                  }
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  required
-                  minLength={searchType === 'content' ? 3 : 2}
-                />
+              <div className="mt-2 flex">
+                <div className="-mr-px grid grow grid-cols-1 focus-within:relative">
+                  <input
+                    type="text"
+                    className="col-start-1 row-start-1 block w-full rounded-l-md bg-white py-1.5 pr-3 pl-10 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:pl-9 sm:text-sm/6"
+                    placeholder={
+                      searchType === 'content'
+                        ? 'Search quotes...'
+                        : 'Search by username...'
+                    }
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    required
+                    minLength={searchType === 'content' ? 3 : 2}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="flex shrink-0 items-center gap-x-1.5 rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 outline-1 -outline-offset-1 outline-gray-300 hover:bg-gray-50 focus:relative focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
+                >
+                  Search
+                </button>
               </div>
-              <button
-                type="submit"
-                className="flex shrink-0 items-center gap-x-1.5 rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 outline-1 -outline-offset-1 outline-gray-300 hover:bg-gray-50 focus:relative focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
-              >
-                Search
-              </button>
+            </form>
+          </div>
+
+          {error && <div className="error">{error}</div>}
+
+          {loading ? (
+            <LoadingSpinner />
+          ) : quotes.length > 0 ? (
+            <div className="grid gap-8 quote-list">
+              {quotes.map(quote => (
+                <QuoteCard key={quote.id} quote={quote} />
+              ))}
             </div>
-          </form>
+          ) : (
+            <div style={{ textAlign: 'center', margin: '3rem 0' }}>
+              {activeTab === 'search'
+                ? searchType === 'content'
+                  ? 'No quotes found matching your search.'
+                  : 'No quotes found from this user.'
+                : 'No quotes available.'}
+            </div>
+          )}
         </div>
-
-        {error && <div className="error">{error}</div>}
-
-        {loading ? (
-          <LoadingSpinner />
-        ) : quotes.length > 0 ? (
-          <div className="grid gap-8 quote-list">
-            {quotes.map(quote => (
-              <QuoteCard key={quote.id} quote={quote} />
-            ))}
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center', margin: '3rem 0' }}>
-            {activeTab === 'search'
-              ? searchType === 'content'
-                ? 'No quotes found matching your search.'
-                : 'No quotes found from this user.'
-              : 'No quotes available.'}
-          </div>
-        )}
       </div>
-    </div>
-  );
+    </>
+  )
 };
 
 export default App;

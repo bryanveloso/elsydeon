@@ -4,6 +4,7 @@ import App from './App'
 
 import '@fontsource/courier-prime'
 import '@fontsource/geist-sans'
+import '@fontsource/yeseva-one'
 
 import '../styles.css'
 

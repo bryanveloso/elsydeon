@@ -6,6 +6,7 @@
       "dependencies": {
         "@fontsource/courier-prime": "^5.2.5",
         "@fontsource/geist-sans": "^5.2.5",
+        "@fontsource/yeseva-one": "^5.2.5",
         "@tailwindcss/cli": "^4.0.9",
         "@tailwindcss/vite": "^4.0.9",
         "@twurple/api": "^7.2.1",
@@ -162,6 +163,8 @@
     "@fontsource/courier-prime": ["@fontsource/courier-prime@5.2.5", "", {}, "sha512-je73pcLzFavKXNPBZP07paiTqK3DS5wUl3JDpcsxrBbVGtznK975WwEIZ+Bd8zC2eCebPJVkddJAY8qQMv2TBQ=="],
 
     "@fontsource/geist-sans": ["@fontsource/geist-sans@5.2.5", "", {}, "sha512-anllOHyJbElRs9fV15TeDRqAeb1IKm4bSknPl6ZMoyPTx1BBy7logudcUwpNjmQLkzn4Q0JGQLRCUKJYoyST6A=="],
+
+    "@fontsource/yeseva-one": ["@fontsource/yeseva-one@5.2.5", "", {}, "sha512-hSADRVp5O/3TOsgQ/1Dd73CZEaGztScXL2s5QHxeds6DBk6fphqfLD8tp/q5gHZV6gX2e8i0xmESejFudImToQ=="],
 
     "@hono/node-server": ["@hono/node-server@1.13.8", "", { "peerDependencies": { "hono": "^4" } }, "sha512-fsn8ucecsAXUoVxrUil0m13kOEq4mkX4/4QozCqmY+HpGfKl74OYSn8JcMA8GnG0ClfdRI4/ZSeG7zhFaVg+wg=="],
 
