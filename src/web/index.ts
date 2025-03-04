@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { db, setupShutdownHandler } from '@core/db';
 import * as schema from '@core/schema';
 import { sql } from 'drizzle-orm';
+import { errorResponse, staticFileResponse } from '@core/utils/http';
 
 // Setup shutdown handler
 setupShutdownHandler();
@@ -75,78 +76,33 @@ export const init = async (port: number = 3000) => {
         }
       }
 
-      // Serve assets from Vite build
+      // Serve static assets (JS, CSS)
       if (path.startsWith('/assets/')) {
-        const file = Bun.file(join(distDir, 'web', path));
-        const contentType = path.endsWith('.js') 
-          ? 'application/javascript' 
-          : path.endsWith('.css')
-            ? 'text/css'
-            : 'application/octet-stream';
-        
-        return new Response(file, {
-          headers: { 'Content-Type': contentType }
-        });
+        return await staticFileResponse(join(distDir, 'web'), path);
       }
       
-      // Serve images from public directory
-      if (path.startsWith('/images/')) {
-        // First try the production path (dist/web/images)
-        let file = Bun.file(join(distDir, 'web', 'images', path.substring(8)));
+      // Handle image paths - support both /images/ and /public/images/ paths
+      if (path.startsWith('/images/') || path.startsWith('/public/images/')) {
+        const imagePath = path.startsWith('/images/')
+          ? path.substring(8)  // Remove '/images/'
+          : path.substring(14); // Remove '/public/images/'
         
-        // If file doesn't exist, try the development path (src/web/public/images)
-        if (!(await file.exists())) {
-          file = Bun.file(join(projectRoot, 'src', 'web', 'public', 'images', path.substring(8)));
-        }
-        
-        const contentType = path.endsWith('.png') 
-          ? 'image/png' 
-          : path.endsWith('.jpg') || path.endsWith('.jpeg')
-            ? 'image/jpeg'
-            : path.endsWith('.gif')
-              ? 'image/gif'
-              : path.endsWith('.svg')
-                ? 'image/svg+xml'
-                : 'application/octet-stream';
-        
-        return new Response(file, {
-          headers: { 'Content-Type': contentType }
-        });
-      }
-      
-      // Also handle /public/images/ path for development
-      if (path.startsWith('/public/images/')) {
-        const imagePath = path.substring(14); // Remove '/public/images/'
-        const file = Bun.file(join(projectRoot, 'src', 'web', 'public', 'images', imagePath));
-        
-        const contentType = path.endsWith('.png') 
-          ? 'image/png' 
-          : path.endsWith('.jpg') || path.endsWith('.jpeg')
-            ? 'image/jpeg'
-            : path.endsWith('.gif')
-              ? 'image/gif'
-              : path.endsWith('.svg')
-                ? 'image/svg+xml'
-                : 'application/octet-stream';
-        
-        return new Response(file, {
-          headers: { 'Content-Type': contentType }
-        });
+        // Try production path first, then development path
+        return await staticFileResponse(
+          join(distDir, 'web', 'images'),
+          imagePath,
+          join(projectRoot, 'src', 'web', 'public', 'images')
+        );
       }
 
       // For API routes that weren't handled above, return JSON error
       if (path.startsWith('/api/')) {
         console.log(`Unhandled API route: ${path}`);
-        return new Response(JSON.stringify({ error: 'API endpoint not found' }), { 
-          status: 404,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        return errorResponse('API endpoint not found', 404);
       }
       
       // For all other routes, serve the Vite-built index.html (SPA pattern)
-      return new Response(Bun.file(join(distDir, 'web', 'index.html')), {
-        headers: { 'Content-Type': 'text/html' }
-      });
+      return await staticFileResponse(join(distDir, 'web'), 'index.html');
     }
   });
 

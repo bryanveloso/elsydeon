@@ -4,9 +4,7 @@ import {
   EmbedBuilder,
   CommandInteraction
 } from 'discord.js';
-import { sql } from 'drizzle-orm';
-import { db } from '@core/db';
-import * as schema from '@core/schema';
+import { quoteService } from '@core/services/quote-service';
 
 export const data = new SlashCommandBuilder()
   .setName('quote')
@@ -108,14 +106,12 @@ async function handleRandomQuote(interaction: CommandInteraction) {
   await interaction.deferReply();
   
   // Get random quote
-  const result = await db.select().from(schema.quotes).orderBy(sql`RANDOM()`).limit(1);
+  const quote = await quoteService.getRandomQuote();
   
-  if (result.length === 0) {
+  if (!quote) {
     await interaction.editReply('No quotes found! Add some with `/quote add`');
     return;
   }
-  
-  const quote = result[0];
   
   // Create a nice embed for the quote
   const embed = new EmbedBuilder()
@@ -135,17 +131,13 @@ async function handleRandomQuote(interaction: CommandInteraction) {
 async function handleLatestQuote(interaction: CommandInteraction) {
   await interaction.deferReply();
   
-  // Get latest quote by using SQL query to sort by ID descending
-  const result = await db.select().from(schema.quotes)
-    .orderBy(sql`${schema.quotes.id} DESC`)
-    .limit(1);
+  // Get latest quote
+  const quote = await quoteService.getLatestQuote();
   
-  if (result.length === 0) {
+  if (!quote) {
     await interaction.editReply('No quotes found! Add some with `/quote add`');
     return;
   }
-  
-  const quote = result[0];
   
   // Create a nice embed for the quote
   const embed = new EmbedBuilder()
@@ -169,15 +161,12 @@ async function handleGetQuote(interaction: CommandInteraction) {
   const id = (interaction as ChatInputCommandInteraction).options.getInteger('id');
   
   // Fetch the quote
-  const result = await db.select().from(schema.quotes)
-    .where(sql`${schema.quotes.id} = ${id}`);
+  const quote = await quoteService.getQuoteById(id!);
   
-  if (result.length === 0) {
+  if (!quote) {
     await interaction.editReply(`Quote #${id} not found!`);
     return;
   }
-  
-  const quote = result[0];
   
   // Create a nice embed for the quote
   const embed = new EmbedBuilder()
@@ -210,20 +199,14 @@ async function handleAddQuote(interaction: ChatInputCommandInteraction) {
   const text = interaction.options.getString('text', true);
   const quotee = interaction.options.getString('quotee', true);
   const quoter = interaction.user.username;
-  const year = new Date().getFullYear();
-  const timestamp = new Date().toISOString();
   
   try {
-    // Insert the quote into the database
-    const result = await db.insert(schema.quotes).values({
+    // Insert the quote using the service
+    const { id: quoteId } = await quoteService.addQuote({
       text,
       quotee,
-      quoter,
-      year,
-      timestamp,
-    }).returning({ id: schema.quotes.id });
-    
-    const quoteId = result[0].id;
+      quoter
+    });
     
     // Create a confirmation embed
     const embed = new EmbedBuilder()
@@ -254,26 +237,14 @@ async function handleSearchQuote(interaction: ChatInputCommandInteraction) {
     return;
   }
   
-  // First, count total matches
-  const countResult = await db.select({ 
-    count: sql`COUNT(*)` 
-  }).from(schema.quotes)
-    .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`);
-  
-  const totalMatches = Number(countResult[0].count);
+  const { quotes, totalMatches } = await quoteService.searchQuotes(searchText, 1, true);
   
   if (totalMatches === 0) {
     await interaction.editReply(`No quotes found containing "${searchText}"`);
     return;
   }
   
-  // Get a random matching quote (more interesting than always the first)
-  const result = await db.select().from(schema.quotes)
-    .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`)
-    .orderBy(sql`RANDOM()`)
-    .limit(1);
-  
-  const quote = result[0];
+  const quote = quotes[0];
   
   // Create a nice embed for the quote
   const embed = new EmbedBuilder()
@@ -317,13 +288,7 @@ async function handleUserQuote(interaction: ChatInputCommandInteraction) {
   
   const searchName = isSelf ? interaction.user.username : username;
   
-  // Count matches for this user
-  const countResult = await db.select({ 
-    count: sql`COUNT(*)` 
-  }).from(schema.quotes)
-    .where(sql`${schema.quotes.quotee} LIKE ${'%' + searchName + '%'}`);
-  
-  const totalMatches = Number(countResult[0].count);
+  const { quotes, totalMatches } = await quoteService.getQuotesByUser(searchName, 1, true);
   
   if (totalMatches === 0) {
     await interaction.editReply(isSelf ? 
@@ -333,13 +298,7 @@ async function handleUserQuote(interaction: ChatInputCommandInteraction) {
     return;
   }
   
-  // Get a random matching quote
-  const result = await db.select().from(schema.quotes)
-    .where(sql`${schema.quotes.quotee} LIKE ${'%' + searchName + '%'}`)
-    .orderBy(sql`RANDOM()`)
-    .limit(1);
-  
-  const quote = result[0];
+  const quote = quotes[0];
   
   // Build the title
   let title;

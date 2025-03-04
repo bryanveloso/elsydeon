@@ -1,7 +1,5 @@
 import { createBotCommand } from '@twurple/easy-bot';
-import { sql } from 'drizzle-orm';
-import { db } from '@core/db';
-import * as schema from '@core/schema';
+import { quoteService } from '@core/services/quote-service';
 
 // Command to handle quotes in different forms:
 // !quote - get a random quote
@@ -19,35 +17,25 @@ export const quote = createBotCommand(
       // Handle different subcommands
       if (params.length === 0) {
         // !quote - Get random quote
-        const result = await db
-          .select()
-          .from(schema.quotes)
-          .orderBy(sql`RANDOM()`)
-          .limit(1);
+        const quote = await quoteService.getRandomQuote();
 
-        if (result.length === 0) {
-          say('There are no quotes! Uh, that’s a problem. avalonWHY');
+        if (!quote) {
+          say('There are no quotes! Uh, that’s a problem. avalonWHY')
           return;
         }
 
-        const quote = result[0];
         say(
           `I found this quote: “${quote.text}” - ${quote.quotee} (#${quote.id}, ${quote.year})`
-        );
+        )
       } else if (params[0] === 'latest') {
         // !quote latest - Get the most recently added quote
-        const result = await db
-          .select()
-          .from(schema.quotes)
-          .orderBy(sql`${schema.quotes.id} DESC`)
-          .limit(1);
+        const quote = await quoteService.getLatestQuote();
 
-        if (result.length === 0) {
+        if (!quote) {
           say('There are no quotes! Uh, that’s a problem. avalonWHY');
           return;
         }
 
-        const quote = result[0];
         say(
           `I found this quote: “${quote.text}” ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
         );
@@ -70,25 +58,18 @@ export const quote = createBotCommand(
         const text = parts[0].trim();
         const quotee = parts[1].trim();
         const quoter = userInfo.displayName;
-        const year = new Date().getFullYear();
-        const timestamp = new Date().toISOString();
 
         try {
-          // Insert the quote into the database
-          const result = await db
-            .insert(schema.quotes)
-            .values({
-              text,
-              quotee,
-              quoter,
-              year,
-              timestamp,
-            })
-            .returning({ id: schema.quotes.id });
+          // Insert the quote using the service
+          const { id } = await quoteService.addQuote({
+            text,
+            quotee,
+            quoter
+          });
 
           say(
-            `I've added the quote #${result[0].id} to the database. Blame yourself or God. avalonSMUG`
-          );
+            `I've added the quote #${id} to the database. Blame yourself or God. avalonSMUG`
+          )
         } catch (error) {
           console.error('Failed to add quote:', error);
           say('Failed to add quote. Please try again later? avalonANGY');
@@ -102,58 +83,37 @@ export const quote = createBotCommand(
           return;
         }
 
-        // First, count the total matches
-        const countResult = await db
-          .select({
-            count: sql`COUNT(*)`,
-          })
-          .from(schema.quotes)
-          .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`);
-
-        const totalMatches = Number(countResult[0].count);
+        const { quotes, totalMatches } = await quoteService.searchQuotes(searchText, 1, true);
 
         if (totalMatches === 0) {
-          say(`No quotes found containing “${searchText}”`);
+          say(`No quotes found containing “${searchText}”`)
           return;
         }
 
-        // Get a random match from the results (more interesting than always the first)
-        const result = await db
-          .select()
-          .from(schema.quotes)
-          .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`)
-          .orderBy(sql`RANDOM()`)
-          .limit(1);
-
-        const quote = result[0];
+        const quote = quotes[0];
 
         if (totalMatches === 1) {
           say(
             `I found this quote: “${quote.text}” ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
-          );
+          )
         } else {
           say(
             `I found ${totalMatches} quotes with “${searchText}”. Here's one: “${quote.text}” ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
-          );
+          )
         }
       } else if (!isNaN(Number(params[0]))) {
         // !quote <id> - Get quote by ID
         const id = Number(params[0]);
+        const quote = await quoteService.getQuoteById(id);
 
-        const result = await db
-          .select()
-          .from(schema.quotes)
-          .where(sql`${schema.quotes.id} = ${id}`);
-
-        if (result.length === 0) {
+        if (!quote) {
           say(`Quote #${id} not found!`);
           return;
         }
 
-        const quote = result[0];
         say(
           `Quote #${quote.id}: “${quote.text}” - ${quote.quotee} (${quote.year})`
-        );
+        )
       } else if (params[0] === 'user' && params.length > 1) {
         // !quote user <username> - Search for quotes said by a specific user
         const username = params.slice(1).join(' ').trim();
@@ -171,30 +131,14 @@ export const quote = createBotCommand(
         
         const searchName = isSelf ? userInfo.displayName : username;
 
-        // Count matches for this user
-        const countResult = await db
-          .select({
-            count: sql`COUNT(*)`,
-          })
-          .from(schema.quotes)
-          .where(sql`${schema.quotes.quotee} LIKE ${'%' + searchName + '%'}`);
-
-        const totalMatches = Number(countResult[0].count);
+        const { quotes, totalMatches } = await quoteService.getQuotesByUser(searchName, 1, true);
 
         if (totalMatches === 0) {
           say(`No quotes found from "${isSelf ? 'you' : searchName}"`);
           return;
         }
 
-        // Get a random match from the results
-        const result = await db
-          .select()
-          .from(schema.quotes)
-          .where(sql`${schema.quotes.quotee} LIKE ${'%' + searchName + '%'}`)
-          .orderBy(sql`RANDOM()`)
-          .limit(1);
-
-        const quote = result[0];
+        const quote = quotes[0];
 
         if (totalMatches === 1) {
           if (isSelf) {

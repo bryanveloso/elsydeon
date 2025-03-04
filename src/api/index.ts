@@ -1,6 +1,6 @@
-import { db, setupShutdownHandler } from '@core/db';
-import * as schema from '@core/schema';
-import { sql } from 'drizzle-orm';
+import { setupShutdownHandler } from '@core/db';
+import { errorResponse, jsonResponse } from '@core/utils/http';
+import { quoteService } from '@core/services/quote-service';
 
 // Setup shutdown handler
 setupShutdownHandler();
@@ -9,28 +9,20 @@ setupShutdownHandler();
 export const apiRoutes = {
   // GET /api/quotes
   async getQuotes(req: Request) {
-    const quotes = await db.select().from(schema.quotes).limit(20);
-    return Response.json(quotes);
+    // This isn't in our QuoteService yet, so we'll call getLatestQuotes for now
+    return this.getLatestQuotes();
   },
   
   // GET /api/quotes/latest
   async getLatestQuotes() {
-    const latest = await db
-      .select()
-      .from(schema.quotes)
-      .orderBy(sql`${schema.quotes.id} DESC`)
-      .limit(25);
-    return Response.json(latest);
+    const latest = await quoteService.getLatestQuotes(25);
+    return jsonResponse(latest);
   },
   
   // GET /api/quotes/random
   async getRandomQuotes() {
-    const random = await db
-      .select()
-      .from(schema.quotes)
-      .orderBy(sql`RANDOM()`)
-      .limit(25);
-    return Response.json(random);
+    const random = await quoteService.getRandomQuotes(25);
+    return jsonResponse(random);
   },
   
   // GET /api/quotes/search?q=...
@@ -39,49 +31,36 @@ export const apiRoutes = {
     const searchTerm = url.searchParams.get('q');
     
     if (!searchTerm || searchTerm.length < 3) {
-      return Response.json(
-        { error: 'Search term must be at least 3 characters' }, 
-        { status: 400 }
-      );
+      return errorResponse('Search term must be at least 3 characters', 400);
     }
 
-    const quotes = await db.select().from(schema.quotes)
-      .where(sql`${schema.quotes.text} LIKE ${'%' + searchTerm + '%'}`)
-      .limit(20);
-
-    return Response.json(quotes);
+    const { quotes } = await quoteService.searchQuotes(searchTerm, 20, false);
+    return jsonResponse(quotes);
   },
   
   // GET /api/quotes/user/:name
   async getQuotesByUser(username: string) {
     if (!username || username.length < 2) {
-      return Response.json(
-        { error: 'Username must be at least 2 characters' },
-        { status: 400 }
-      );
+      return errorResponse('Username must be at least 2 characters', 400);
     }
 
-    const quotes = await db.select().from(schema.quotes)
-      .where(sql`${schema.quotes.quotee} LIKE ${'%' + username + '%'}`)
-      .limit(20);
-
-    return Response.json(quotes);
+    const { quotes } = await quoteService.getQuotesByUser(username, 20, false);
+    return jsonResponse(quotes);
   },
   
   // GET /api/quotes/:id
   async getQuoteById(id: number) {
     if (isNaN(id)) {
-      return Response.json({ error: 'Invalid quote ID' }, { status: 400 });
+      return errorResponse('Invalid quote ID', 400);
     }
 
-    const quote = await db.select().from(schema.quotes)
-      .where(sql`${schema.quotes.id} = ${id}`);
+    const quote = await quoteService.getQuoteById(id);
 
-    if (!quote.length) {
-      return Response.json({ error: 'Quote not found' }, { status: 404 });
+    if (!quote) {
+      return errorResponse('Quote not found', 404);
     }
 
-    return Response.json(quote[0]);
+    return jsonResponse(quote);
   }
 };
 
@@ -126,7 +105,7 @@ if (import.meta.main) {
         return apiRoutes.getQuoteById(parseInt(idMatch[1]));
       }
 
-      return new Response('Not Found', { status: 404 });
+      return errorResponse('Not Found', 404);
     },
   });
 
