@@ -81,12 +81,14 @@ export const init = async (port: number = 3000) => {
 
 // Main entry point for standalone web server
 if (import.meta.main) {
-  const port = parseInt(Bun.env.WEB_PORT || '3000');
+  const port = parseInt(Bun.env.WEB_PORT || '3001');
   console.log(`Starting web server on port ${port}...`);
-  init(port).then(() => {
-    console.log('Web server initialized successfully');
-  }).catch(error => {
-    console.error('Failed to initialize web server:', error);
-    process.exit(1);
-  });
+  init(port)
+    .then(() => {
+      console.log('Web server initialized successfully');
+    })
+    .catch(error => {
+      console.error('Failed to initialize web server:', error);
+      process.exit(1);
+    });
 }
