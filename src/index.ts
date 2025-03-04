@@ -1,30 +1,19 @@
-import { count } from 'drizzle-orm';
-
-import { db } from './db';
-import * as schema from './db/schema';
-
-import { init as discordInit } from './discord';
-import { init as twitchInit } from './twitch';
+import { getQuoteCount, setupShutdownHandler } from './core/db';
+import { startBots } from './bot';
 import { init as webInit } from './web';
 
 // Add graceful shutdown handling
-const handleShutdown = () => {
-  console.log('Shutting down gracefully...');
-  process.exit(0);
-};
+setupShutdownHandler();
 
-process.on('SIGINT', handleShutdown);
-process.on('SIGTERM', handleShutdown);
-
-// Startup sequence
+// Startup sequence for all services
 const startup = async () => {
   try {
-    const result = await db.select({ value: count() }).from(schema.quotes);
-    console.log(`Loaded ${result[0].value} quotes...`);
+    // Log quote count
+    const quoteCount = await getQuoteCount();
+    console.log(`Loaded ${quoteCount} quotes...`);
     
     // Start Discord and Twitch bots
-    await discordInit();
-    await twitchInit();
+    await startBots();
     
     // Start web server if enabled
     const webEnabled = Bun.env.WEB_ENABLED === 'true';
@@ -41,4 +30,9 @@ const startup = async () => {
   }
 };
 
-startup();
+// Only run startup if this is the main entry point
+if (import.meta.main) {
+  startup();
+}
+
+export { startup };

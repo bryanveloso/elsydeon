@@ -1,8 +1,11 @@
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { db } from '../db';
-import * as schema from '../db/schema';
+import { db, setupShutdownHandler } from '../core/db';
+import * as schema from '../core/schema';
 import { sql } from 'drizzle-orm';
+
+// Setup shutdown handler
+setupShutdownHandler();
 
 // Get paths
 const __filename = fileURLToPath(import.meta.url);
@@ -10,6 +13,7 @@ const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..', '..');
 const distDir = join(projectRoot, 'dist');
 
+// Define server initialization function
 export const init = async (port: number = 3000) => {
   console.log(`Initializing web server on port ${port}...`);
 
@@ -20,60 +24,34 @@ export const init = async (port: number = 3000) => {
       const url = new URL(req.url);
       const path = url.pathname;
 
-      // API Routes
+      // API Routes - Import and use the shared API routes
       if (path.startsWith('/api/quotes')) {
+        const { apiRoutes } = await import('../api');
+        
         // GET /api/quotes
         if (path === '/api/quotes') {
-          const quotes = await db.select().from(schema.quotes).limit(20);
-          return Response.json(quotes);
+          return apiRoutes.getQuotes(req);
         }
         
         // GET /api/quotes/latest
         if (path === '/api/quotes/latest') {
-          const latest = await db.select().from(schema.quotes)
-            .orderBy(sql`${schema.quotes.id} DESC`)
-            .limit(10);
-          return Response.json(latest);
+          return apiRoutes.getLatestQuotes();
         }
         
         // GET /api/quotes/random
         if (path === '/api/quotes/random') {
-          const random = await db.select().from(schema.quotes)
-            .orderBy(sql`RANDOM()`)
-            .limit(10);
-          return Response.json(random);
+          return apiRoutes.getRandomQuotes();
         }
         
         // GET /api/quotes/search?q=...
         if (path === '/api/quotes/search') {
-          const searchTerm = url.searchParams.get('q');
-          if (!searchTerm || searchTerm.length < 3) {
-            return Response.json({ error: 'Search term must be at least 3 characters' }, { status: 400 });
-          }
-
-          const quotes = await db.select().from(schema.quotes)
-            .where(sql`${schema.quotes.text} LIKE ${'%' + searchTerm + '%'}`)
-            .limit(20);
-
-          return Response.json(quotes);
+          return apiRoutes.searchQuotes(req);
         }
         
         // GET /api/quotes/:id
         const idMatch = path.match(/^\/api\/quotes\/(\d+)$/);
         if (idMatch) {
-          const id = parseInt(idMatch[1]);
-          if (isNaN(id)) {
-            return Response.json({ error: 'Invalid quote ID' }, { status: 400 });
-          }
-
-          const quote = await db.select().from(schema.quotes)
-            .where(sql`${schema.quotes.id} = ${id}`);
-
-          if (!quote.length) {
-            return Response.json({ error: 'Quote not found' }, { status: 404 });
-          }
-
-          return Response.json(quote[0]);
+          return apiRoutes.getQuoteById(parseInt(idMatch[1]));
         }
       }
 
@@ -100,3 +78,15 @@ export const init = async (port: number = 3000) => {
   
   return server;
 };
+
+// Main entry point for standalone web server
+if (import.meta.main) {
+  const port = parseInt(Bun.env.WEB_PORT || '3000');
+  console.log(`Starting web server on port ${port}...`);
+  init(port).then(() => {
+    console.log('Web server initialized successfully');
+  }).catch(error => {
+    console.error('Failed to initialize web server:', error);
+    process.exit(1);
+  });
+}

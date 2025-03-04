@@ -6,8 +6,11 @@
     "dev": "bun --watch src/index.ts",
     "start": "bun run src/index.ts",
     "build": "bun run build.ts",
-    "dev:web": "bun run build && bun --watch src/index.ts",
-    "dev:all": "bun run build.ts -- -w"
+    "dev:web": "bun run build && bun --watch src/web/index.ts",
+    "dev:api": "bun --watch src/api/index.ts",
+    "dev:bot": "bun --watch src/bot/index.ts", 
+    "dev:all": "bun run build.ts -- -w",
+    "dev:ui": "bun run build.ts -- -w"
   },
   "devDependencies": {
     "@types/react": "^19.0.10",
