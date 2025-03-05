@@ -7,6 +7,8 @@ import {
   Scripts,
 } from '@tanstack/react-router'
 
+import CSS from '../assets/styles.css?url'
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -21,6 +23,7 @@ export const Route = createRootRoute({
         title: `Shit Crusaders Say | bash.org for Avalonstar's Crusaders`,
       },
     ],
+    links: [{ rel: 'stylesheet', href: CSS }],
   }),
   component: RootComponent,
 })
@@ -39,7 +42,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="bg-slate-950 text-slate-50">
         {children}
         <Scripts />
       </body>
