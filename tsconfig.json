@@ -20,6 +20,7 @@
     ],
     "baseUrl": ".",
     "paths": {
+      "@app/*": ["app/*"],
       "@core/*": ["src/core/*"],
       "@db/*": ["src/db/*"],
       "@bot/*": ["src/bot/*"],

@@ -2,14 +2,21 @@
 import type { ReactNode } from 'react'
 import {
   Outlet,
-  createRootRoute,
+  createRootRouteWithContext,
   HeadContent,
   Scripts,
 } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
+
+import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
+
+import '@fontsource/courier-prime'
+import '@fontsource/geist-sans'
+import '@fontsource/yeseva-one'
 
 import CSS from '../assets/styles.css?url'
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       {
@@ -25,6 +32,13 @@ export const Route = createRootRoute({
     ],
     links: [{ rel: 'stylesheet', href: CSS }],
   }),
+  errorComponent: props => {
+    return (
+      <RootDocument>
+        <DefaultCatchBoundary {...props} />
+      </RootDocument>
+    )
+  },
   component: RootComponent,
 })
 
@@ -42,8 +56,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-slate-950 text-slate-50">
-        {children}
+      <body className="bg-zinc-950 text-zinc-50">
+        <main>{children}</main>
         <Scripts />
       </body>
     </html>

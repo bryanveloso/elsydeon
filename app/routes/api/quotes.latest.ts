@@ -4,7 +4,9 @@ import { quoteService } from '@core/services/quote-service'
 
 export const APIRoute = createAPIFileRoute('/api/quotes/latest')({
   GET: async ({ request, params }) => {
+    console.info(`Fetching quotes...`)
     const data = await quoteService.getLatestQuotes(25)
-    return json({ data })
+    // No need to wrap data in another array if it's already an array
+    return json(data)
   },
 })
