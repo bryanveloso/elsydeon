@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as BrowseImport } from './routes/browse'
 import { Route as IndexImport } from './routes/index'
+import { Route as QuoteIdImport } from './routes/quote.$id'
 
 // Create/Update Routes
 
@@ -25,6 +26,12 @@ const BrowseRoute = BrowseImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const QuoteIdRoute = QuoteIdImport.update({
+  id: '/quote/$id',
+  path: '/quote/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,6 +53,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrowseImport
       parentRoute: typeof rootRoute
     }
+    '/quote/$id': {
+      id: '/quote/$id'
+      path: '/quote/$id'
+      fullPath: '/quote/$id'
+      preLoaderRoute: typeof QuoteIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -54,36 +68,41 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/quote/$id': typeof QuoteIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/quote/$id': typeof QuoteIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/browse': typeof BrowseRoute
+  '/quote/$id': typeof QuoteIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/browse'
+  fullPaths: '/' | '/browse' | '/quote/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/browse'
-  id: '__root__' | '/' | '/browse'
+  to: '/' | '/browse' | '/quote/$id'
+  id: '__root__' | '/' | '/browse' | '/quote/$id'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrowseRoute: typeof BrowseRoute
+  QuoteIdRoute: typeof QuoteIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrowseRoute: BrowseRoute,
+  QuoteIdRoute: QuoteIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,7 +116,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/browse"
+        "/browse",
+        "/quote/$id"
       ]
     },
     "/": {
@@ -105,6 +125,9 @@ export const routeTree = rootRoute
     },
     "/browse": {
       "filePath": "browse.tsx"
+    },
+    "/quote/$id": {
+      "filePath": "quote.$id.tsx"
     }
   }
 }
