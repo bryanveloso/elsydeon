@@ -1,7 +1,10 @@
 // app/routes/index.tsx
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+
 import { quoteService } from '@core/services/quote-service'
+
+import SHAKE from '@app/assets/images/shake.gif'
 
 export const getQuoteStats = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -30,6 +33,9 @@ function Home() {
   return (
     <div>
       <h1 className="font-display text-2xl sm:text-6xl">
+        <div>
+          <img src={SHAKE} className="size-16" />
+        </div>
         Shit{' '}
         <span className="bg-gradient-to-br from-amber-300 to-emerald-300 bg-clip-text text-transparent">
           Crusaders
