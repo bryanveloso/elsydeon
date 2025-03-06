@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { sql, count } from 'drizzle-orm';
 import { db } from '@core/db';
 import * as schema from '@core/schema';
 
@@ -18,6 +18,24 @@ export interface QuoteAddParams {
 }
 
 export class QuoteService {
+  async getQuotesCount(): Promise<number> {
+    const result = await db
+      .select({ value: count() })
+      .from(schema.quotes);
+    
+    return result[0].value;
+  }
+
+  async getQuoteYears(): Promise<number[]> {
+    const result = await db
+      .select({ year: schema.quotes.year })
+      .from(schema.quotes)
+      .groupBy(schema.quotes.year)
+      .orderBy(schema.quotes.year);
+    
+    return result.map(row => row.year);
+  }
+
   async getRandomQuotes(limit: number = 25): Promise<Quote[]> {
     const result = await db
       .select()

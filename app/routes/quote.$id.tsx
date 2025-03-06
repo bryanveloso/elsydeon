@@ -20,7 +20,7 @@ function RouteComponent() {
   const quote = Route.useLoaderData()
 
   return (
-    <div className="grid align-middle items-center h-screen">
+    <div className="grid align-middle items-center h-dvh">
       <div className="aspect-video mx-auto flex flex-col h-96 bg-green-800 p-8 rounded-lg">
         <div className="font-mono text-4xl flex-1">
           &lt;{quote?.quotee}&gt; {quote?.text}

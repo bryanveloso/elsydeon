@@ -2,7 +2,7 @@ import { drizzle, BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import { Database } from 'bun:sqlite';
 
 // Use environment variable with fallback for database path
-const dbPath = Bun.env.DATABASE_PATH || 'data/quotes.db';
+const dbPath = Bun.env.DATABASE_PATH || './data/quotes.db';
 
 // Add connection error handling
 let db: BunSQLiteDatabase;
