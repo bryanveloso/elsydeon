@@ -84,6 +84,10 @@ export class QuoteService {
     const result = await this.getLatestQuotes(1);
     return result.length > 0 ? result[0] : null;
   }
+  
+  async getRecentQuotes(count: number = 5): Promise<Quote[]> {
+    return this.getLatestQuotes(count);
+  }
 
   async getQuoteById(id: number): Promise<Quote | null> {
     const result = await db
@@ -125,8 +129,15 @@ export class QuoteService {
     };
   }
 
+  /**
+   * Adds a new quote, ensuring quotation marks are stripped from the text
+   */
   async addQuote(params: QuoteAddParams): Promise<{ id: number }> {
-    const { text, quotee, quoter } = params;
+    let { text, quotee, quoter } = params;
+    
+    // Strip quotation marks from the beginning and end of the text
+    text = this.stripQuotationMarks(text);
+    
     const year = new Date().getFullYear();
     const timestamp = new Date().toISOString();
     
@@ -142,6 +153,15 @@ export class QuoteService {
       .returning({ id: schema.quotes.id });
     
     return { id: result[0].id };
+  }
+  
+  /**
+   * Helper function to remove quotation marks from the beginning and end of a string
+   */
+  private stripQuotationMarks(text: string): string {
+    // Remove quotation marks from start and end, handling both single and double quotes
+    // This regex matches if the string starts with a quote and ends with the same type of quote
+    return text.replace(/^(['"])(.*)\1$/, '$2');
   }
 
   async searchQuotes(searchText: string, limit: number = 25, random: boolean = false): Promise<{ quotes: Quote[]; totalMatches: number }> {
