@@ -51,14 +51,33 @@ export class QuoteService {
     return result.length > 0 ? result[0] : null;
   }
 
-  async getLatestQuotes(limit: number = 25): Promise<Quote[]> {
+  async getLatestQuotes(limit: number = 25, offset: number = 0): Promise<Quote[]> {
     const result = await db
       .select()
       .from(schema.quotes)
       .orderBy(sql`${schema.quotes.id} DESC`)
-      .limit(limit);
+      .limit(limit)
+      .offset(offset);
     
     return result;
+  }
+  
+  async getPaginatedQuotes(page: number = 1, pageSize: number = 10): Promise<{ quotes: Quote[]; totalPages: number; currentPage: number }> {
+    // Calculate offset
+    const offset = (page - 1) * pageSize;
+    
+    // Get total count for pagination
+    const totalCount = await this.getQuotesCount();
+    const totalPages = Math.ceil(totalCount / pageSize);
+    
+    // Get quotes for current page
+    const quotes = await this.getLatestQuotes(pageSize, offset);
+    
+    return {
+      quotes,
+      totalPages,
+      currentPage: page
+    };
   }
 
   async getLatestQuote(): Promise<Quote | null> {
