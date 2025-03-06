@@ -21,14 +21,14 @@ function RouteComponent() {
 
   return (
     <div className="grid align-middle items-center h-screen">
-      <div className="max-w-3xl mx-auto px-8 sm:px-0">
-        <div>
-          Quote <strong>#{quote?.id}</strong>
-        </div>
-        <div className="font-mono text-4xl">
+      <div className="aspect-video mx-auto flex flex-col h-96 bg-green-800 p-8 rounded-lg">
+        <div className="font-mono text-4xl flex-1">
           &lt;{quote?.quotee}&gt; {quote?.text}
         </div>
         <div className="flex">
+          <div>
+            Quote <strong>#{quote?.id}</strong>
+          </div>
           <div>
             Recorded on the&nbsp;
             {quote?.timestamp

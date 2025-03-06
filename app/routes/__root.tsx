@@ -56,7 +56,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-zinc-950 text-zinc-50">
+      <body className="bg-zinc-950 text-zinc-50 text-sans">
         <main>{children}</main>
         <Scripts />
       </body>
