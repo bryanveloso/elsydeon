@@ -74,6 +74,37 @@ export class QuoteService {
     
     return result.length > 0 ? result[0] : null;
   }
+  
+  async getAdjacentQuotes(id: number): Promise<{ current: Quote | null; previous: Quote | null; next: Quote | null }> {
+    // Get the current quote
+    const current = await this.getQuoteById(id);
+    
+    if (!current) {
+      return { current: null, previous: null, next: null };
+    }
+    
+    // Get the previous quote (lower ID)
+    const previousResult = await db
+      .select()
+      .from(schema.quotes)
+      .where(sql`${schema.quotes.id} < ${id}`)
+      .orderBy(sql`${schema.quotes.id} DESC`)
+      .limit(1);
+    
+    // Get the next quote (higher ID)
+    const nextResult = await db
+      .select()
+      .from(schema.quotes)
+      .where(sql`${schema.quotes.id} > ${id}`)
+      .orderBy(sql`${schema.quotes.id} ASC`)
+      .limit(1);
+    
+    return {
+      current,
+      previous: previousResult.length > 0 ? previousResult[0] : null,
+      next: nextResult.length > 0 ? nextResult[0] : null
+    };
+  }
 
   async addQuote(params: QuoteAddParams): Promise<{ id: number }> {
     const { text, quotee, quoter } = params;
