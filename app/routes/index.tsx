@@ -17,7 +17,10 @@ export const getHomeData = createServerFn({ method: 'GET' }).handler(
 
     const randomQuote = await quoteService.getRandomQuote()
 
-    return { totalQuotes, yearSpan, randomQuote }
+    // Get latest 5 quotes
+    const recentQuotes = await quoteService.getRecentQuotes(5)
+
+    return { totalQuotes, yearSpan, randomQuote, recentQuotes }
   }
 )
 
@@ -111,9 +114,47 @@ function Home() {
             sense of them either.
           </p>
         </div>
+
+        <div className="mt-8">
+          <h2 className="text-xl mb-4">Recent Regrets</h2>
+          <div className="space-y-3">
+            {state.recentQuotes.map(recentQuote => (
+              <div key={recentQuote.id} className="bg-gray-800/50 p-3 rounded">
+                <div className="font-mono text-sm">
+                  &lt;{recentQuote.quotee}&gt; {recentQuote.text}
+                </div>
+                <div className="flex justify-between text-xs text-gray-400 mt-2">
+                  <Link
+                    to="/quote/$id"
+                    params={{ id: recentQuote.id.toString() }}
+                    className="text-amber-300 hover:underline"
+                  >
+                    Quote #{recentQuote.id}
+                  </Link>
+                  <span>
+                    {new Date(recentQuote.timestamp).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 flex justify-center">
+            <Link
+              to="/browse"
+              className="px-4 py-2 bg-gray-800 rounded hover:bg-gray-700 transition"
+            >
+              Browse All Quotes
+            </Link>
+          </div>
+        </div>
       </div>
 
-      <div className=""></div>
+      <div className="mb-20">
+        Interested in seeing what gets quoted next? Then make your way over to
+        avalonstar.tv, hit that follow button and make your way back when
+        Avalonstar&apos;s live!
+      </div>
     </div>
   )
 }
