@@ -4,4 +4,69 @@
   --font-display: "Yeseva One", serif;
   --font-sans: "Geist Sans", sans-serif;
   --font-mono: "Courier Prime", monospace;
+
+  /* Sprout (Green series) */
+  --color-sprout-50: oklch(0.98 0.02 135.00);  /* #E7F7E7 (lightest green) */
+  --color-sprout-100: oklch(0.97 0.04 135.00);
+  --color-sprout-200: oklch(0.94 0.08 135.00);  /* #BBF4B0 (light green) */
+  --color-sprout-300: oklch(0.90 0.13 135.00);
+  --color-sprout-400: oklch(0.86 0.17 135.00);
+  --color-sprout-500: oklch(0.83 0.20 135.00);  /* #5BE058 (primary green) */
+  --color-sprout-600: oklch(0.73 0.18 135.00);
+  --color-sprout-700: oklch(0.63 0.16 135.00);
+  --color-sprout-800: oklch(0.53 0.13 135.00);
+  --color-sprout-900: oklch(0.43 0.11 135.00);
+  --color-sprout-950: oklch(0.33 0.08 135.00);
+
+  /* Cosmos (Purple series) */
+  --color-cosmos-50: oklch(0.97 0.03 290.00);
+  --color-cosmos-100: oklch(0.94 0.05 290.00);
+  --color-cosmos-200: oklch(0.90 0.08 290.00);
+  --color-cosmos-300: oklch(0.84 0.12 290.00);  /* #928ADD (lighter purple) */
+  --color-cosmos-400: oklch(0.75 0.17 290.00);
+  --color-cosmos-500: oklch(0.68 0.21 290.00);  /* #6644E8 (primary purple) */
+  --color-cosmos-600: oklch(0.58 0.18 290.00);
+  --color-cosmos-700: oklch(0.48 0.15 290.00);
+  --color-cosmos-800: oklch(0.38 0.12 290.00);
+  --color-cosmos-900: oklch(0.28 0.08 290.00);
+  --color-cosmos-950: oklch(0.18 0.05 290.00);  /* #241F33 (darkest purple) */
+
+  /* Ocean (Blue series) */
+  --color-ocean-50: oklch(0.97 0.03 198.00);
+  --color-ocean-100: oklch(0.94 0.05 198.00);
+  --color-ocean-200: oklch(0.90 0.09 198.00);
+  --color-ocean-300: oklch(0.87 0.06 215.00);  /* #B4CBD6 (blue-grey) */
+  --color-ocean-400: oklch(0.80 0.19 198.00);
+  --color-ocean-500: oklch(0.75 0.22 198.00);  /* #1CDAF4 (primary blue) */
+  --color-ocean-600: oklch(0.65 0.19 198.00);
+  --color-ocean-700: oklch(0.58 0.08 220.00);  /* #6D8591 (slate blue-grey) */
+  --color-ocean-800: oklch(0.45 0.13 198.00);
+  --color-ocean-900: oklch(0.35 0.10 198.00);
+  --color-ocean-950: oklch(0.25 0.07 198.00);
+
+  /* Sunbeam (Yellow series) */
+  --color-sunbeam-50: oklch(0.98 0.03 95.00);
+  --color-sunbeam-100: oklch(0.97 0.06 95.00);
+  --color-sunbeam-200: oklch(0.96 0.09 95.00);  /* #FFF683 (lighter yellow) */
+  --color-sunbeam-300: oklch(0.93 0.13 95.00);
+  --color-sunbeam-400: oklch(0.91 0.17 95.00);
+  --color-sunbeam-500: oklch(0.88 0.20 95.00);  /* #FFDD33 (primary yellow) */
+  --color-sunbeam-600: oklch(0.75 0.17 95.00);
+  --color-sunbeam-700: oklch(0.65 0.14 95.00);
+  --color-sunbeam-800: oklch(0.55 0.11 95.00);
+  --color-sunbeam-900: oklch(0.45 0.08 95.00);
+  --color-sunbeam-950: oklch(0.35 0.06 95.00);
+
+  /* Nebula (Neutral/Grey series) */
+  --color-nebula-50: oklch(0.98 0.01 250.00);
+  --color-nebula-100: oklch(0.92 0.01 250.00);
+  --color-nebula-200: oklch(0.85 0.02 250.00);
+  --color-nebula-300: oklch(0.75 0.02 250.00);
+  --color-nebula-400: oklch(0.65 0.02 250.00);  /* #939393 (mid-grey) */
+  --color-nebula-500: oklch(0.55 0.02 250.00);
+  --color-nebula-600: oklch(0.45 0.02 250.00);
+  --color-nebula-700: oklch(0.35 0.02 250.00);
+  --color-nebula-800: oklch(0.25 0.02 250.00);  /* #21292F (dark grey) */
+  --color-nebula-900: oklch(0.15 0.02 250.00);
+  --color-nebula-950: oklch(0.10 0.01 250.00);  /* #0D0A11 (near black) */
 }

@@ -59,7 +59,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-zinc-950 text-zinc-50 text-sans flex flex-col min-h-dvh">
+      <body className="bg-nebula-900 text-nebula-50 text-sans flex flex-col min-h-dvh">
         <main className="flex-1">{children}</main>
         <Footer />
         <Scripts />

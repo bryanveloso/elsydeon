@@ -57,45 +57,65 @@ function Home() {
   }
 
   return (
-    <div>
-      <h1 className="font-display text-2xl sm:text-6xl">
-        <div>
-          <img src={SHAKE} className="size-16" />
-        </div>
-        Shit{' '}
-        <span className="bg-gradient-to-br from-amber-300 to-emerald-300 bg-clip-text text-transparent">
-          Crusaders
-        </span>{' '}
-        Say
-      </h1>
-
+    <div className="md:pt-12">
       {/* Random Quote Display */}
       {quote && (
-        <div className="my-6 bg-gray-800 p-4 sm:rounded-lg shadow h-36">
-          <div className="max-w-2xl m-auto">
-            <div className="font-mono mb-2 text-2xl">
-              &lt;{quote.quotee}&gt; {quote.text}
-            </div>
-            <div className="flex justify-between text-sm text-gray-400">
+        <div className="mb-6 h-64 md:mx-6">
+          <div className="max-w-2xl m-auto p-8 flex flex-col h-full border border-nebula-700 rounded-2xl">
+            <div className="font-mono text-2xl flex-1">
               <Link
                 to="/quote/$id"
                 params={{ id: quote.id.toString() }}
-                className="text-amber-300 hover:underline"
+                className="text-sunbeam-300 hover:text-ocean-300 underline-offset-6 underline decoration-wavy"
               >
-                Quote #{quote.id}
+                #{quote.id}
               </Link>
+              : &lt;{quote.quotee}&gt; {quote.text}
+            </div>
+            <div className="flex justify-between items-center text-sm text-gray-400">
+              <div>
+                <Link
+                  to="/quote/$id"
+                  params={{ id: quote.id.toString() }}
+                  className="text-ocean-300"
+                >
+                  {new Date(quote.timestamp).toLocaleDateString()}
+                </Link>
+              </div>
               <button
                 onClick={refreshQuote}
                 disabled={isLoading}
-                className="text-amber-300 hover:underline disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                className="border-sunbeam-300 text-sunbeam-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                {isLoading ? 'Loading...' : 'Give me another!'}
-                {!isLoading && <span className="text-lg">↻</span>}
+                <span className="text-xl -mt-1">↻</span>
+                <span>Give me another!</span>
               </button>
             </div>
           </div>
         </div>
       )}
+
+      <div className="text-3xl md:text-5xl">
+        <div className="max-w-2xl m-auto flex items-center gap-2">
+          <div>
+            <img src={SHAKE} className="size-16 md:size-24 md:-ml-1.5" />
+          </div>
+          <div>
+            <h1 className="font-display leading-snug">
+              Shit{' '}
+              <span className="bg-gradient-to-br from-sunbeam-300 to-sprout-500 bg-clip-text text-transparent">
+                Crusaders
+              </span>{' '}
+              Say
+            </h1>
+            <div className="-mt-5 md:-mt-9">
+              <span className="text-xs text-nebula-500">
+                A collection of &ldquo;moments&rdquo; by Avalonstar's Crusaders.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="max-w-2xl m-auto">
         <h2>
@@ -119,18 +139,18 @@ function Home() {
           <h2 className="text-xl mb-4">Recent Regrets</h2>
           <div className="space-y-3">
             {state.recentQuotes.map(recentQuote => (
-              <div key={recentQuote.id} className="bg-gray-800/50 p-3 rounded">
+              <div key={recentQuote.id}>
                 <div className="font-mono text-sm">
-                  &lt;{recentQuote.quotee}&gt; {recentQuote.text}
-                </div>
-                <div className="flex justify-between text-xs text-gray-400 mt-2">
                   <Link
                     to="/quote/$id"
                     params={{ id: recentQuote.id.toString() }}
                     className="text-amber-300 hover:underline"
                   >
-                    Quote #{recentQuote.id}
+                    #{recentQuote.id}
                   </Link>
+                  : &lt;{recentQuote.quotee}&gt; {recentQuote.text}
+                </div>
+                <div className="flex justify-between text-xs text-gray-400 mt-2">
                   <span>
                     {new Date(recentQuote.timestamp).toLocaleDateString()}
                   </span>
