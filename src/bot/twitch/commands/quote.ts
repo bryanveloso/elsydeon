@@ -41,9 +41,9 @@ export const quote = createBotCommand(
         );
       } else if (params[0] === 'add' && params.length > 1) {
         // !quote add <text> - <quotee> - Add new quote
-        if (!userInfo.isBroadcaster && !userInfo.isMod) {
-          say('Only mods and the broadcaster can add quotes!');
-          return;
+        if (!userInfo.isBroadcaster && !userInfo.isMod && !userInfo.isVip) {
+          say('Only mods and the broadcaster can add quotes!')
+          return
         }
 
         // Join all parameters except "add" and look for the delimiter
