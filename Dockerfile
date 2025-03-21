@@ -30,6 +30,4 @@ ENV WEB_ENABLED=true
 ENV WEB_PORT=3000
 ENV DATABASE_PATH="/usr/src/app/data/quotes.db"
 
-RUN mkdir -p data
-
 ENTRYPOINT [ "bun", "run", "src/index.ts" ]
