@@ -1,7 +1,7 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-display: "Yeseva One", serif;
-  --font-sans: "Geist Sans", sans-serif;
-  --font-mono: "Courier Prime", monospace;
+  --font-display: 'Yeseva One', serif;
+  --font-sans: 'Geist Sans', sans-serif;
+  --font-mono: 'Courier Prime', monospace;
 }

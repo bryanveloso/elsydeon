@@ -1,38 +1,38 @@
-import { getQuoteCount, setupShutdownHandler } from '@core/db';
-import { startBots } from '@bot/index';
-import { init as webInit } from '@web/index';
+import { getQuoteCount, setupShutdownHandler } from '@core/db'
+import { startBots } from '@bot/index'
+import { init as webInit } from '@web/index'
 
 // Add graceful shutdown handling
-setupShutdownHandler();
+setupShutdownHandler()
 
 // Startup sequence for all services
 const startup = async () => {
   try {
     // Log quote count
-    const quoteCount = await getQuoteCount();
-    console.log(`Loaded ${quoteCount} quotes...`);
-    
+    const quoteCount = await getQuoteCount()
+    console.log(`Loaded ${quoteCount} quotes...`)
+
     // Start Discord and Twitch bots
-    await startBots();
-    
+    await startBots()
+
     // Start web server if enabled
-    const webEnabled = Bun.env.WEB_ENABLED === 'true';
-    const webPort = parseInt(Bun.env.WEB_PORT || '3000');
-    
+    const webEnabled = Bun.env.WEB_ENABLED === 'true'
+    const webPort = parseInt(Bun.env.WEB_PORT || '3000')
+
     if (webEnabled) {
-      await webInit(webPort);
+      await webInit(webPort)
     }
-    
-    console.log('All services initialized successfully');
+
+    console.log('All services initialized successfully')
   } catch (error) {
-    console.error('Failed to initialize:', error);
-    process.exit(1);
+    console.error('Failed to initialize:', error)
+    process.exit(1)
   }
-};
+}
 
 // Only run startup if this is the main entry point
 if (import.meta.main) {
-  startup();
+  startup()
 }
 
-export { startup };
+export { startup }

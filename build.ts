@@ -1,25 +1,25 @@
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { $, build } from 'bun';
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { mkdir } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import { $, build } from 'bun'
 
 // Setup paths
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const distDir = join(__dirname, 'dist');
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const distDir = join(__dirname, 'dist')
 
 /**
  * Build the application
  */
 async function buildApp(dev = false) {
   try {
-    const startTime = performance.now();
-    console.log(`Starting ${dev ? 'development' : 'production'} build...`);
+    const startTime = performance.now()
+    console.log(`Starting ${dev ? 'development' : 'production'} build...`)
 
     // Ensure dist directory exists
     if (!existsSync(distDir)) {
-      await mkdir(distDir, { recursive: true });
+      await mkdir(distDir, { recursive: true })
     }
 
     // Write index.html
@@ -35,9 +35,9 @@ async function buildApp(dev = false) {
 <body>
   <div id="root"></div>
 </body>
-</html>`;
+</html>`
 
-    await Bun.write(join(distDir, 'index.html'), html);
+    await Bun.write(join(distDir, 'index.html'), html)
 
     // Build React app with Bun's bundler
     const jsResult = await build({
@@ -45,65 +45,64 @@ async function buildApp(dev = false) {
       outdir: distDir,
       minify: !dev,
       sourcemap: dev ? 'inline' : 'none',
-      naming: { entry: 'app.js' },
-    });
+      naming: { entry: 'app.js' }
+    })
 
     if (!jsResult.success) {
-      console.error('JS build failed:', jsResult.logs);
-      if (!dev) process.exit(1);
-      return;
+      console.error('JS build failed:', jsResult.logs)
+      if (!dev) process.exit(1)
+      return
     }
 
     // Process CSS with Tailwind
-    console.log('Processing CSS with Tailwind...');
-    
+    console.log('Processing CSS with Tailwind...')
+
     // Use separate command for dev/prod to avoid template literal issues
     const tailwindCmd = dev
       ? await $`tailwindcss -i ./src/web/styles.css -o ./dist/styles.css`
-      : await $`tailwindcss -i ./src/web/styles.css -o ./dist/styles.css --minify`;
-    
+      : await $`tailwindcss -i ./src/web/styles.css -o ./dist/styles.css --minify`
+
     if (tailwindCmd.exitCode !== 0) {
-      console.error('CSS processing failed');
-      if (!dev) process.exit(1);
-      return;
+      console.error('CSS processing failed')
+      if (!dev) process.exit(1)
+      return
     }
 
-    const duration = (performance.now() - startTime).toFixed(2);
-    console.log(`✓ Build completed in ${duration}ms`);
-    
+    const duration = (performance.now() - startTime).toFixed(2)
+    console.log(`✓ Build completed in ${duration}ms`)
   } catch (error) {
-    console.error('Build error:', error);
-    if (!dev) process.exit(1);
+    console.error('Build error:', error)
+    if (!dev) process.exit(1)
   }
 }
 
 // Main execution
-const isWatchMode = process.argv.includes('-w') || process.argv.includes('--watch');
+const isWatchMode = process.argv.includes('-w') || process.argv.includes('--watch')
 
 if (isWatchMode) {
   // Run in watch mode
-  const { watch } = await import('node:fs');
-  
-  console.log('🔄 Starting build in watch mode...');
-  await buildApp(true);
-  
+  const { watch } = await import('node:fs')
+
+  console.log('🔄 Starting build in watch mode...')
+  await buildApp(true)
+
   // Watch for file changes
   const watcher = watch('src', { recursive: true }, async (_, filename) => {
     if (filename) {
-      console.log(`📝 File changed: ${filename}`);
-      await buildApp(true);
+      console.log(`📝 File changed: ${filename}`)
+      await buildApp(true)
     }
-  });
-  
+  })
+
   // Handle termination
   process.on('SIGINT', () => {
-    watcher.close();
-    console.log('👋 Watch mode terminated');
-    process.exit(0);
-  });
-  
-  console.log('👀 Watching for changes...');
+    watcher.close()
+    console.log('👋 Watch mode terminated')
+    process.exit(0)
+  })
+
+  console.log('👀 Watching for changes...')
 } else {
   // Run a single production build
-  await buildApp();
+  await buildApp()
 }
