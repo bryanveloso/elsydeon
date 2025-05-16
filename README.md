@@ -32,6 +32,7 @@ This starts both the frontend (Vite dev server) and API server.
 ## Setup
 
 1. Copy `.env.example` to `.env` and fill in your credentials:
+
    ```
    cp .env.example .env
    ```
