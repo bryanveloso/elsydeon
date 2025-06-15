@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  elsydeon:
+    build: .
+    container_name: elsydeon
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+      - "${API_PORT:-4000}:4000"
+    volumes:
+      - elsydeon-tokens:/usr/src/app/tokens
+      - ./data:/usr/src/app/data
+    environment:
+      # Discord
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      
+      # Twitch
+      - TWITCH_CLIENT_ID=${TWITCH_CLIENT_ID}
+      - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
+      - TWITCH_CHANNELS=${TWITCH_CHANNELS}
+      - TWITCH_USER_ID=${TWITCH_USER_ID:-66977097}
+      
+      # Database (using container path)
+      - DATABASE_PATH=/usr/src/app/data/quotes.db
+      
+      # Web/API
+      - WEB_ENABLED=${WEB_ENABLED:-true}
+      - WEB_PORT=${WEB_PORT:-3000}
+      - API_PORT=${API_PORT:-4000}
+      
+      # LM Studio (optional, will use defaults if not set)
+      - LM_STUDIO_API_URL=${LM_STUDIO_API_URL:-}
+      - LM_STUDIO_API_KEY=${LM_STUDIO_API_KEY:-}
+      - LM_STUDIO_MODEL=${LM_STUDIO_MODEL:-}
+    
+    # Since LM Studio is on the host network (saya.local)
+    extra_hosts:
+      - "saya.local:host-gateway"
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+
+volumes:
+  elsydeon-tokens:
