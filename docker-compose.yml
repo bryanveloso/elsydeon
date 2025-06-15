@@ -9,7 +9,7 @@ services:
       - "${WEB_PORT:-3000}:3000"
       - "${API_PORT:-4000}:4000"
     volumes:
-      - elsydeon-tokens:/usr/src/app/tokens
+      - /Users/Avalonstar/Code/bryanveloso/elsydeon/tokens.66977097.json:/usr/src/app/tokens.66977097.json
       - /Users/Avalonstar/Code/bryanveloso/elsydeon/data:/usr/src/app/data
     environment:
       # Discord
@@ -45,5 +45,3 @@ services:
       start_period: 10s
       retries: 3
 
-volumes:
-  elsydeon-tokens:
