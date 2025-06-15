@@ -27,7 +27,7 @@ export class LMStudioService {
 
   async generateCompletion(
     prompt: string, 
-    options?: CompletionOptions
+    options?: CompletionOptions & { model?: string }
   ): Promise<CompletionResponse> {
     const messages: Message[] = [];
     
@@ -44,7 +44,7 @@ export class LMStudioService {
     });
 
     const request: CompletionRequest = {
-      model: this.config.model,
+      model: options?.model || this.config.model,
       messages,
       temperature: options?.temperature ?? 0.7,
       max_tokens: options?.maxTokens ?? 1000,
@@ -77,7 +77,7 @@ export class LMStudioService {
 
   async *streamCompletion(
     prompt: string, 
-    options?: CompletionOptions
+    options?: CompletionOptions & { model?: string }
   ): AsyncGenerator<string> {
     const messages: Message[] = [];
     
@@ -94,7 +94,7 @@ export class LMStudioService {
     });
 
     const request: CompletionRequest = {
-      model: this.config.model,
+      model: options?.model || this.config.model,
       messages,
       temperature: options?.temperature ?? 0.7,
       max_tokens: options?.maxTokens ?? 1000,

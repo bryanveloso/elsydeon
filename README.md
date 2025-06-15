@@ -82,6 +82,34 @@ bun run start
 - `WEB_ENABLED`: Set to 'true' to enable the web interface
 - `WEB_PORT`: Port for the web interface (default: 3000)
 - `API_PORT`: Port for the standalone API server (default: 3002)
+- `LM_STUDIO_API_URL`: LM Studio API endpoint (default: http://localhost:1234/v1 for dev, http://saya.local:1234/v1 for production)
+- `LM_STUDIO_API_KEY`: Optional API key for LM Studio
+- `LM_STUDIO_MODEL`: Default model to use (default: llama-3.2-3b-instruct)
+
+## Bot Commands
+
+### Twitch Commands
+
+- `!quote` - Get a random quote
+- `!quote latest` - Get the most recently added quote
+- `!quote <id>` - Get a specific quote by ID
+- `!quote add "<text>" ~ @username` - Add a new quote (mods/broadcaster only)
+- `!quote search <text>` - Search for quotes containing text
+- `!quote user <username>` - Get quotes from a specific user
+- `!punt <@username>` - Timeout someone for 1 second
+- `!slap <target>` - Slap someone or something
+- `!analyze [username] [personality]` - AI-powered quote analysis
+  - Personalities: roast, wholesome, philosophical, sarcastic, professional, drunk
+  - Examples: `!analyze`, `!analyze avalonstar`, `!analyze roast`, `!analyze avalonstar philosophical`
+
+### Discord Commands
+
+- `/quote` - Get a random quote
+- `/quote latest` - Get the most recently added quote
+- `/quote get <id>` - Get a specific quote by ID
+- `/quote add <text> <quotee>` - Add a new quote
+- `/quote search <text>` - Search for quotes
+- `/quote user <username>` - Get quotes from a specific user
 
 ## API Endpoints
 

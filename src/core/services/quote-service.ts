@@ -143,6 +143,44 @@ export class QuoteService {
 
     return { quotes, totalMatches }
   }
+
+  async getQuotesForAnalysis(username: string, sampleSize: number = 10): Promise<Quote[]> {
+    const { quotes, totalMatches } = await this.getQuotesByUser(username, sampleSize, true)
+    return quotes
+  }
+
+  async getUserQuoteStats(username: string): Promise<{
+    totalQuotes: number
+    firstQuoteYear: number | null
+    lastQuoteYear: number | null
+    averageLength: number
+  }> {
+    const { totalMatches } = await this.getQuotesByUser(username, 1)
+    
+    if (totalMatches === 0) {
+      return {
+        totalQuotes: 0,
+        firstQuoteYear: null,
+        lastQuoteYear: null,
+        averageLength: 0
+      }
+    }
+
+    const allQuotes = await db
+      .select()
+      .from(schema.quotes)
+      .where(sql`${schema.quotes.quotee} LIKE ${'%' + username + '%'}`)
+
+    const years = allQuotes.map(q => q.year).sort()
+    const totalLength = allQuotes.reduce((sum, q) => sum + q.text.length, 0)
+
+    return {
+      totalQuotes: totalMatches,
+      firstQuoteYear: years[0],
+      lastQuoteYear: years[years.length - 1],
+      averageLength: Math.round(totalLength / totalMatches)
+    }
+  }
 }
 
 // Export a singleton instance
