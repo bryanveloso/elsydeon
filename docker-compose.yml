@@ -10,7 +10,7 @@ services:
       - "${API_PORT:-4000}:4000"
     volumes:
       - elsydeon-tokens:/usr/src/app/tokens
-      - ./data:/usr/src/app/data
+      - /Users/Avalonstar/Code/bryanveloso/elsydeon/data:/usr/src/app/data
     environment:
       # Discord
       - DISCORD_TOKEN=${DISCORD_TOKEN}
