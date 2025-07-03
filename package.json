@@ -9,31 +9,31 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@types/react": "^19.1.5",
-    "@types/react-dom": "^19.1.5",
-    "@vitejs/plugin-react": "^4.5.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
     "bun-types": "latest",
     "drizzle-kit": "^0.20.18",
-    "prettier": "^3.5.3",
-    "prettier-plugin-tailwindcss": "^0.6.11",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.13",
     "vite": "^6.3.5"
   },
   "peerDependencies": {
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@fontsource/courier-prime": "^5.2.5",
+    "@fontsource/courier-prime": "^5.2.6",
     "@fontsource/geist-sans": "^5.2.5",
-    "@fontsource/yeseva-one": "^5.2.5",
-    "@tailwindcss/cli": "^4.1.7",
-    "@tailwindcss/vite": "^4.1.7",
+    "@fontsource/yeseva-one": "^5.2.6",
+    "@tailwindcss/cli": "^4.1.11",
+    "@tailwindcss/vite": "^4.1.11",
     "@twurple/api": "^7.3.0",
     "@twurple/auth": "^7.3.0",
     "@twurple/easy-bot": "^7.3.0",
-    "discord.js": "^14.19.3",
+    "discord.js": "^14.21.0",
     "drizzle-orm": "^0.29.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "tailwindcss": "^4.1.7"
+    "tailwindcss": "^4.1.11"
   }
 }
