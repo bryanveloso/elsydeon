@@ -181,6 +181,70 @@ export class QuoteService {
       averageLength: Math.round(totalLength / totalMatches)
     }
   }
+
+  async getAllQuotesPaginated(page: number = 1, perPage: number = 100): Promise<{
+    quotes: Quote[]
+    pagination: {
+      page: number
+      per_page: number
+      total: number
+      total_pages: number
+    }
+  }> {
+    // Get total count
+    const countResult = await db
+      .select({
+        count: sql`COUNT(*)`
+      })
+      .from(schema.quotes)
+
+    const total = Number(countResult[0].count)
+    const totalPages = Math.ceil(total / perPage)
+    const offset = (page - 1) * perPage
+
+    // Get paginated quotes
+    const quotes = await db
+      .select()
+      .from(schema.quotes)
+      .orderBy(sql`${schema.quotes.id} DESC`)
+      .limit(perPage)
+      .offset(offset)
+
+    return {
+      quotes,
+      pagination: {
+        page,
+        per_page: perPage,
+        total,
+        total_pages: totalPages
+      }
+    }
+  }
+
+  async getAllUsers(): Promise<Array<{
+    quotee: string
+    quote_count: number
+    first_quote_date: string
+    last_quote_date: string
+  }>> {
+    const result = await db
+      .select({
+        quotee: schema.quotes.quotee,
+        quote_count: sql`COUNT(*)`,
+        first_quote_date: sql`MIN(${schema.quotes.timestamp})`,
+        last_quote_date: sql`MAX(${schema.quotes.timestamp})`
+      })
+      .from(schema.quotes)
+      .groupBy(schema.quotes.quotee)
+      .orderBy(sql`COUNT(*) DESC`)
+
+    return result.map(row => ({
+      quotee: row.quotee,
+      quote_count: Number(row.quote_count),
+      first_quote_date: row.first_quote_date as string,
+      last_quote_date: row.last_quote_date as string
+    }))
+  }
 }
 
 // Export a singleton instance

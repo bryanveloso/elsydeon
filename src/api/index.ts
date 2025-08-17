@@ -9,8 +9,32 @@ setupShutdownHandler()
 export const apiRoutes = {
   // GET /api/quotes
   async getQuotes(req: Request) {
-    // This isn't in our QuoteService yet, so we'll call getLatestQuotes for now
-    return this.getLatestQuotes()
+    const url = new URL(req.url)
+    const page = parseInt(url.searchParams.get('page') || '1')
+    const perPage = Math.min(parseInt(url.searchParams.get('per_page') || '100'), 500)
+
+    if (page < 1) {
+      return errorResponse('Page must be greater than 0', 400)
+    }
+
+    if (perPage < 1) {
+      return errorResponse('per_page must be greater than 0', 400)
+    }
+
+    const result = await quoteService.getAllQuotesPaginated(page, perPage)
+    
+    // Transform quotes to match Landale API format
+    const transformedQuotes = result.quotes.map(quote => ({
+      id: quote.id,
+      text: quote.text,
+      quotee: quote.quotee,
+      created_at: quote.timestamp
+    }))
+
+    return jsonResponse({
+      quotes: transformedQuotes,
+      pagination: result.pagination
+    })
   },
 
   // GET /api/quotes/latest
@@ -60,7 +84,21 @@ export const apiRoutes = {
       return errorResponse('Quote not found', 404)
     }
 
-    return jsonResponse(quote)
+    // Transform quote to match Landale API format
+    const transformedQuote = {
+      id: quote.id,
+      text: quote.text,
+      quotee: quote.quotee,
+      created_at: quote.timestamp
+    }
+
+    return jsonResponse(transformedQuote)
+  },
+
+  // GET /api/users
+  async getUsers() {
+    const users = await quoteService.getAllUsers()
+    return jsonResponse({ users })
   }
 }
 
@@ -103,6 +141,10 @@ if (import.meta.main) {
       const idMatch = path.match(/^\/api\/quotes\/(\d+)$/)
       if (idMatch) {
         return apiRoutes.getQuoteById(parseInt(idMatch[1]))
+      }
+
+      if (path === '/api/users') {
+        return apiRoutes.getUsers()
       }
 
       return errorResponse('Not Found', 404)
