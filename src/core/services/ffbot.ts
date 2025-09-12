@@ -1,5 +1,5 @@
 import { watch } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { parse } from 'ini';
 import { EventEmitter } from 'node:events';
 
@@ -58,6 +58,7 @@ class FFBotService extends EventEmitter {
   private hireCache: HireData | null = null;
   private playerCache: Map<string, PlayerStats> = new Map();
   private lastRefresh: Date | null = null;
+  private fileModifiedTime: Date | null = null;
   private refreshTimer: NodeJS.Timeout | null = null;
   private watcher: any = null;
   
@@ -112,8 +113,13 @@ class FFBotService extends EventEmitter {
     try {
       console.log('[FFBot] Refreshing FFBot data...');
       
-      // Read metadata/player file
-      const metadataContent = await readFile(this.METADATA_FILE, 'utf-8');
+      // Read metadata/player file and get its modification time
+      const [metadataContent, fileStats] = await Promise.all([
+        readFile(this.METADATA_FILE, 'utf-8'),
+        stat(this.METADATA_FILE)
+      ]);
+      this.fileModifiedTime = fileStats.mtime;
+      
       const metadataParsed = parse(metadataContent);
       
       // Clear and rebuild player cache
@@ -233,6 +239,10 @@ class FFBotService extends EventEmitter {
   
   getLastRefresh(): Date | null {
     return this.lastRefresh;
+  }
+  
+  getFileModifiedTime(): Date | null {
+    return this.fileModifiedTime;
   }
   
   isAvailable(): boolean {

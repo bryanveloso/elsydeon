@@ -28,10 +28,24 @@ export const stats = createBotCommand('stats', async (params, { msg: { userInfo 
 
   const { lv, hp, atk, mag, spi, unit, wins, esper } = playerStats
 
+  // Calculate how old the data is
+  const fileModTime = ffbotService.getFileModifiedTime()
+  let ageText = ''
+  if (fileModTime) {
+    const ageMinutes = Math.floor((Date.now() - fileModTime.getTime()) / 60000)
+    if (ageMinutes < 1) {
+      ageText = '(current)'
+    } else if (ageMinutes === 1) {
+      ageText = '(1 minute old)'
+    } else {
+      ageText = `(${ageMinutes} minutes old)`
+    }
+  }
+
   say(
     `📊 ${targetUser} | Lv${lv} ${unit} | ` +
       `HP: ${hp.toLocaleString()} ATK: ${atk.toLocaleString()} MAG: ${mag.toLocaleString()} SPI: ${spi.toLocaleString()} | ` +
-      `Wins: ${wins} | Esper: ${esper} | (Stats may be 10 minutes old.)`
+      `Wins: ${wins} | Esper: ${esper} |${ageText}`
   )
 })
 
