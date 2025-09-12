@@ -34,18 +34,18 @@ export const stats = createBotCommand('stats', async (params, { msg: { userInfo 
   if (fileModTime) {
     const ageMinutes = Math.floor((Date.now() - fileModTime.getTime()) / 60000)
     if (ageMinutes < 1) {
-      ageText = '(current)'
+      ageText = '(data is current)'
     } else if (ageMinutes === 1) {
-      ageText = '(1 minute old)'
+      ageText = '(data is 1 minute old)'
     } else {
-      ageText = `(${ageMinutes} minutes old)`
+      ageText = `(data is ${ageMinutes} minutes old)`
     }
   }
 
   say(
     `📊 ${targetUser} | Lv${lv} ${unit} | ` +
       `HP: ${hp.toLocaleString()} ATK: ${atk.toLocaleString()} MAG: ${mag.toLocaleString()} SPI: ${spi.toLocaleString()} | ` +
-      `Wins: ${wins} | Esper: ${esper} |${ageText}`
+      `Wins: ${wins} | Esper: ${esper} | ${ageText}`
   )
 })
 
