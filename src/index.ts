@@ -9,9 +9,6 @@ setupShutdownHandler()
 // Startup sequence for all services
 const startup = async () => {
   try {
-    // Initialize FFBot service
-    await ffbotService.initialize()
-    
     // Log quote count
     const quoteCount = await getQuoteCount()
     console.log(`Loaded ${quoteCount} quotes...`)
@@ -26,6 +23,9 @@ const startup = async () => {
     if (webEnabled) {
       await webInit(webPort)
     }
+
+    // Initialize FFBot service
+    await ffbotService.initialize()
 
     console.log('All services initialized successfully')
   } catch (error) {

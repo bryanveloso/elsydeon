@@ -5,7 +5,7 @@ import { punt } from './punt'
 import { slap } from './slap'
 import { quote } from './quote'
 import { analyze } from './analyze'
-import { ffbot, ffrefresh } from './ffbot'
+import { ffbot, stats, ffrefresh } from './ffbot'
 
 // Export command registry
 export const commands: BotCommand[] = [
@@ -13,9 +13,10 @@ export const commands: BotCommand[] = [
   slap, 
   quote, 
   analyze, 
-  ffbot, 
+  ffbot,
+  stats,
   ffrefresh
 ]
 
 // Export individual commands for direct use
-export { punt, slap, quote, analyze, ffbot, ffrefresh }
+export { punt, slap, quote, analyze, ffbot, stats, ffrefresh }

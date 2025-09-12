@@ -27,10 +27,36 @@ interface HireData {
   [player: string]: Record<string, boolean | number>;
 }
 
+interface PlayerStats {
+  hp: number;
+  atk: number;
+  mag: number;
+  luk: number;
+  eva: number;
+  preferedstat: string;
+  gil: number;
+  collection: number;
+  lv: number;
+  exp: number;
+  unit: string;
+  ascension: number;
+  summon: string;
+  artifact: string;
+  spi: number;
+  freehire: boolean;
+  wins: number;
+  freehirecount: number;
+  season: number;
+  esper: string;
+  card?: string;
+  card_collection?: number;
+}
+
 class FFBotService extends EventEmitter {
   private static instance: FFBotService;
   private metadataCache: FFBotMetadata | null = null;
   private hireCache: HireData | null = null;
+  private playerCache: Map<string, PlayerStats> = new Map();
   private lastRefresh: Date | null = null;
   private refreshTimer: NodeJS.Timeout | null = null;
   private watcher: any = null;
@@ -86,9 +112,49 @@ class FFBotService extends EventEmitter {
     try {
       console.log('[FFBot] Refreshing FFBot data...');
       
-      // Read metadata file
+      // Read metadata/player file
       const metadataContent = await readFile(this.METADATA_FILE, 'utf-8');
       const metadataParsed = parse(metadataContent);
+      
+      // Clear and rebuild player cache
+      this.playerCache.clear();
+      
+      // Parse all sections - metadata is one, the rest are players
+      for (const [section, data] of Object.entries(metadataParsed)) {
+        if (section === 'metadata') continue;
+        
+        // This is a player section
+        if (typeof data === 'object' && data !== null) {
+          const playerData = data as any;
+          const stats: PlayerStats = {
+            hp: parseInt(playerData.hp) || 0,
+            atk: parseInt(playerData.atk) || 0,
+            mag: parseInt(playerData.mag) || 0,
+            luk: parseInt(playerData.luk) || 0,
+            eva: parseInt(playerData.eva) || 0,
+            preferedstat: playerData.preferedstat || 'none',
+            gil: parseInt(playerData.gil) || 0,
+            collection: parseInt(playerData.collection) || 0,
+            lv: parseInt(playerData.lv) || 0,
+            exp: parseInt(playerData.exp) || 0,
+            unit: playerData.unit || '',
+            ascension: parseInt(playerData.ascension) || 0,
+            summon: playerData.summon || 'no',
+            artifact: playerData.artifact || '',
+            spi: parseInt(playerData.spi) || 0,
+            freehire: Boolean(playerData.freehire),
+            wins: parseInt(playerData.wins) || 0,
+            freehirecount: parseInt(playerData.freehirecount) || 0,
+            season: parseInt(playerData.season) || 0,
+            esper: playerData.esper || 'none',
+            card: playerData.card,
+            card_collection: playerData.card_collection ? parseInt(playerData.card_collection) : undefined,
+          };
+          
+          // Store with lowercase key for case-insensitive lookup
+          this.playerCache.set(section.toLowerCase(), stats);
+        }
+      }
       
       if (metadataParsed.metadata) {
         // Parse card_list from string representation
@@ -111,17 +177,17 @@ class FFBotService extends EventEmitter {
           season: parseInt(metadataParsed.metadata.season) || 0,
           recordcycle: parseInt(metadataParsed.metadata.recordcycle) || 0,
           pity_loss: parseInt(metadataParsed.metadata.pity_loss) || 0,
-          autologin: metadataParsed.metadata.autologin === 'true',
+          autologin: Boolean(metadataParsed.metadata.autologin),
           autologinname: (metadataParsed.metadata.autologinname || '').replace(/"/g, ''),
-          joinmode: metadataParsed.metadata.joinmode === 'true',
+          joinmode: Boolean(metadataParsed.metadata.joinmode),
           expmulti: parseFloat(metadataParsed.metadata.expmulti) || 1.0,
-          ragtimedisabled: metadataParsed.metadata.ragtimedisabled === 'true',
-          leaderboard: metadataParsed.metadata.leaderboard === 'true',
+          ragtimedisabled: Boolean(metadataParsed.metadata.ragtimedisabled),
+          leaderboard: Boolean(metadataParsed.metadata.leaderboard),
           note: metadataParsed.metadata.note || '',
-          perfomance: metadataParsed.metadata.perfomance === 'true',
-          shorter: metadataParsed.metadata.shorter === 'true',
-          joblist: metadataParsed.metadata.joblist === 'true',
-          triple: metadataParsed.metadata.triple === 'true',
+          perfomance: Boolean(metadataParsed.metadata.perfomance),
+          shorter: Boolean(metadataParsed.metadata.shorter),
+          joblist: Boolean(metadataParsed.metadata.joblist),
+          triple: Boolean(metadataParsed.metadata.triple),
           card_list: cardList,
           rng: (metadataParsed.metadata.rng || '').replace(/"/g, ''),
         };
@@ -160,6 +226,11 @@ class FFBotService extends EventEmitter {
     return key ? this.hireCache[key] : null;
   }
   
+  getPlayerStats(playerName: string): PlayerStats | null {
+    // Case-insensitive lookup
+    return this.playerCache.get(playerName.toLowerCase()) || null;
+  }
+  
   getLastRefresh(): Date | null {
     return this.lastRefresh;
   }
@@ -188,4 +259,4 @@ class FFBotService extends EventEmitter {
 }
 
 export const ffbotService = FFBotService.getInstance();
-export type { FFBotMetadata, HireData };
+export type { FFBotMetadata, HireData, PlayerStats };
