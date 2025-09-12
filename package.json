@@ -30,8 +30,10 @@
     "@twurple/api": "^7.3.0",
     "@twurple/auth": "^7.3.0",
     "@twurple/easy-bot": "^7.3.0",
+    "@types/ini": "^4.1.1",
     "discord.js": "^14.21.0",
     "drizzle-orm": "^0.29.5",
+    "ini": "^5.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.1.11"

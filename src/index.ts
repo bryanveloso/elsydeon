@@ -1,6 +1,7 @@
 import { getQuoteCount, setupShutdownHandler } from '@core/db'
 import { startBots } from '@bot/index'
 import { init as webInit } from '@web/index'
+import { ffbotService } from '@core/services/ffbot'
 
 // Add graceful shutdown handling
 setupShutdownHandler()
@@ -8,6 +9,9 @@ setupShutdownHandler()
 // Startup sequence for all services
 const startup = async () => {
   try {
+    // Initialize FFBot service
+    await ffbotService.initialize()
+    
     // Log quote count
     const quoteCount = await getQuoteCount()
     console.log(`Loaded ${quoteCount} quotes...`)
