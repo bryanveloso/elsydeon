@@ -22,18 +22,16 @@ export const stats = createBotCommand('stats', async (params, { msg: { userInfo 
   const playerStats = ffbotService.getPlayerStats(targetUser)
 
   if (!playerStats) {
-    say(`No stats found for ${targetUser}`)
+    say(`No stats found for ${targetUser}.`)
     return
   }
 
-  const { lv, hp, atk, mag, spi, unit, wins, gil, esper } = playerStats
+  const { lv, hp, atk, mag, spi, unit, wins, esper } = playerStats
 
   say(
     `📊 ${targetUser} | Lv${lv} ${unit} | ` +
-      `HP:${hp.toLocaleString()} ATK:${atk.toLocaleString()} MAG:${mag.toLocaleString()} SPI:${spi.toLocaleString()} | ` +
-      `Wins:${wins} Gil:${gil.toLocaleString()} | ` +
-      `Esper:${esper} | ` +
-      `(Stats may be 10 minutes old.)`
+      `HP: ${hp.toLocaleString()} ATK: ${atk.toLocaleString()} MAG: ${mag.toLocaleString()} SPI: ${spi.toLocaleString()} | ` +
+      `Wins: ${wins} | Esper: ${esper} | (Stats may be 10 minutes old.)`
   )
 })
 
