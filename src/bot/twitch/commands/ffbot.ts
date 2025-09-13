@@ -16,8 +16,13 @@ export const ffbot = createBotCommand('ffbot', async (_, { say }) => {
 
 export const stats = createBotCommand('stats', async (params, { msg: { userInfo }, say }) => {
   // If no args, look up the user who sent the command
-  // If one arg, look up that username
-  const targetUser = params.length > 0 ? params[0] : userInfo.displayName
+  // If one arg, look up that username (stripping @ if present)
+  let targetUser = params.length > 0 ? params[0] : userInfo.displayName
+  
+  // Strip @ from the beginning if present
+  if (targetUser.startsWith('@')) {
+    targetUser = targetUser.substring(1)
+  }
 
   const playerStats = ffbotService.getPlayerStats(targetUser)
 
