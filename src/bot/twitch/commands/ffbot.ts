@@ -48,7 +48,7 @@ export const stats = createBotCommand('stats', async (params, { msg: { userInfo 
   }
 
   say(
-    `📊 ${targetUser} | Lv${lv} ${unit} | ` +
+    `📊 ${targetUser} | Lv${lv.toLocaleString()} ${unit} | ` +
       `HP: ${hp.toLocaleString()} ATK: ${atk.toLocaleString()} MAG: ${mag.toLocaleString()} SPI: ${spi.toLocaleString()} | ` +
       `Wins: ${wins} | Esper: ${esper} | Artifact: ${artifact} | ${ageText}`
   )
