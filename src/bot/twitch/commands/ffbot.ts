@@ -1,5 +1,6 @@
 import { createBotCommand } from '@twurple/easy-bot'
 import { ffbotService } from '@core/services/ffbot'
+import { toSuperscript } from '@core/utils/superscript'
 
 export const ffbot = createBotCommand('ffbot', async (_, { say }) => {
   const metadata = ffbotService.getMetadata()
@@ -48,7 +49,7 @@ export const stats = createBotCommand('stats', async (params, { msg: { userInfo 
   }
 
   say(
-    `📊 ${targetUser}${ascension > 0 ? ` (+${ascension})` : ''} ${wins >= 100 ? '↗️' : ''} | Lv${lv.toLocaleString()} ${unit} | ` +
+    `📊 ${targetUser}${ascension > 0 ? toSuperscript(`+${ascension}`) : ''} ${wins >= 100 ? '↗️' : ''} | Lv${lv.toLocaleString()} ${unit} | ` +
       `HP: ${hp.toLocaleString()} ATK: ${atk.toLocaleString()} MAG: ${mag.toLocaleString()} SPI: ${spi.toLocaleString()} | ` +
       `Wins: ${wins} | Esper: ${esper} | Job: ${m1} | ${ageText}`
   )
