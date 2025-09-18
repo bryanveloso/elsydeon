@@ -101,6 +101,7 @@ export const init = async () => {
     // Set up event handlers
     bot.onConnect(() => {
       console.log(`Twitch: Connected to ${channels.length} channels: ${channels.join(', ')}`)
+      bot.say('avalonstar', `avalonEUREKA It appears that I have been rebooted.`)
     })
 
     bot.onDisconnect((graceful) => {
