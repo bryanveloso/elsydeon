@@ -43,13 +43,31 @@ interface PlayerStats {
   summon: string;
   artifact: string;
   spi: number;
+  arti_hp: number;
+  arti_atk: number;
+  arti_mag: number;
+  arti_spi: number;
   freehire: boolean;
   wins: number;
   freehirecount: number;
   season: number;
   esper: string;
+  jobap: number;
+  m1: string;
+  m2: string;
+  m3: string;
+  m4: string;
+  m5: string;
+  m6: string;
+  m7: string;
+  job_atk: number;
+  job_mag: number;
+  job_spi: number;
+  job_hp: number;
   card?: string;
   card_collection?: number;
+  card_passive?: string;
+  card_active?: string;
 }
 
 class FFBotService extends EventEmitter {
@@ -138,23 +156,41 @@ class FFBotService extends EventEmitter {
             mag: parseInt(playerData.mag) || 0,
             luk: parseInt(playerData.luk) || 0,
             eva: parseInt(playerData.eva) || 0,
-            preferedstat: playerData.preferedstat || 'none',
+            preferedstat: (playerData.preferedstat || 'none').replace(/"/g, ''),
             gil: parseInt(playerData.gil) || 0,
             collection: parseInt(playerData.collection) || 0,
             lv: parseInt(playerData.lv) || 0,
             exp: parseInt(playerData.exp) || 0,
-            unit: playerData.unit || '',
+            unit: (playerData.unit || '').replace(/"/g, ''),
             ascension: parseInt(playerData.ascension) || 0,
-            summon: playerData.summon || 'no',
-            artifact: playerData.artifact || '',
+            summon: (playerData.summon || 'no').replace(/"/g, ''),
+            artifact: (playerData.artifact || '').replace(/"/g, ''),
             spi: parseInt(playerData.spi) || 0,
+            arti_hp: parseInt(playerData.arti_hp) || 0,
+            arti_atk: parseInt(playerData.arti_atk) || 0,
+            arti_mag: parseInt(playerData.arti_mag) || 0,
+            arti_spi: parseInt(playerData.arti_spi) || 0,
             freehire: Boolean(playerData.freehire),
             wins: parseInt(playerData.wins) || 0,
             freehirecount: parseInt(playerData.freehirecount) || 0,
             season: parseInt(playerData.season) || 0,
-            esper: playerData.esper || 'none',
-            card: playerData.card,
+            esper: (playerData.esper || 'none').replace(/"/g, ''),
+            jobap: parseInt(playerData.jobap) || 0,
+            m1: (playerData.m1 || '').replace(/"/g, ''),
+            m2: (playerData.m2 || '').replace(/"/g, ''),
+            m3: (playerData.m3 || '').replace(/"/g, ''),
+            m4: (playerData.m4 || '').replace(/"/g, ''),
+            m5: (playerData.m5 || '').replace(/"/g, ''),
+            m6: (playerData.m6 || '').replace(/"/g, ''),
+            m7: (playerData.m7 || '').replace(/"/g, ''),
+            job_atk: parseInt(playerData.job_atk) || 0,
+            job_mag: parseInt(playerData.job_mag) || 0,
+            job_spi: parseInt(playerData.job_spi) || 0,
+            job_hp: parseInt(playerData.job_hp) || 0,
+            card: playerData.card?.replace(/"/g, ''),
             card_collection: playerData.card_collection ? parseInt(playerData.card_collection) : undefined,
+            card_passive: (playerData.card_passive || '').replace(/"/g, ''),
+            card_active: (playerData.card_active || '').replace(/"/g, ''),
           };
           
           // Store with lowercase key for case-insensitive lookup
