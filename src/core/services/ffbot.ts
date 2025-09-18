@@ -117,6 +117,11 @@ class FFBotService extends EventEmitter {
     try {
       // Watch the directory for changes
       this.watcher = watch(this.FFBOT_PATH, { recursive: false }, async (eventType, filename) => {
+        // Ignore FUSE temporary files and other temporary files
+        if (filename && (filename.startsWith('.fuse_hidden') || filename.startsWith('.'))) {
+          return;
+        }
+
         if (filename === 'playerdatabase.ini' || filename === 'hire.ini') {
           console.log(`[FFBot] File changed: ${filename}`);
           await this.refresh();
@@ -130,12 +135,25 @@ class FFBotService extends EventEmitter {
   private async refresh(): Promise<void> {
     try {
       console.log('[FFBot] Refreshing FFBot data...');
-      
+
       // Read metadata/player file and get its modification time
-      const [metadataContent, fileStats] = await Promise.all([
-        readFile(this.METADATA_FILE, 'utf-8'),
-        stat(this.METADATA_FILE)
-      ]);
+      let metadataContent: string;
+      let fileStats: any;
+
+      try {
+        [metadataContent, fileStats] = await Promise.all([
+          readFile(this.METADATA_FILE, 'utf-8'),
+          stat(this.METADATA_FILE)
+        ]);
+      } catch (readError: any) {
+        // File might be temporarily locked or being written
+        if (readError.code === 'ENOENT' || readError.code === 'EBUSY') {
+          console.log('[FFBot] File temporarily unavailable, will retry on next refresh');
+          return;
+        }
+        throw readError;
+      }
+
       this.fileModifiedTime = fileStats.mtime;
       
       const metadataParsed = parse(metadataContent);
