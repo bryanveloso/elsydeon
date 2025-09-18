@@ -31,7 +31,7 @@ export const stats = createBotCommand('stats', async (params, { msg: { userInfo 
     return
   }
 
-  const { lv, hp, atk, mag, spi, unit, wins, esper, m1 } = playerStats
+  const { lv, hp, atk, mag, spi, unit, wins, esper, m1, freehire } = playerStats
 
   // Calculate how old the data is
   const fileModTime = ffbotService.getFileModifiedTime()
@@ -48,9 +48,9 @@ export const stats = createBotCommand('stats', async (params, { msg: { userInfo 
   }
 
   say(
-    `📊 ${targetUser} | Lv${lv.toLocaleString()} ${unit} | ` +
+    `📊 ${targetUser} ${freehire ? '✴️' : ''}${wins >= 100 ? '↗️' : ''} | Lv${lv.toLocaleString()} ${unit} | ` +
       `HP: ${hp.toLocaleString()} ATK: ${atk.toLocaleString()} MAG: ${mag.toLocaleString()} SPI: ${spi.toLocaleString()} | ` +
-      `Wins: ${wins}${wins >= 100 ? ' (↗️)' : ''} | Esper: ${esper} | Job: ${m1} | ${ageText}`
+      `Wins: ${wins} | Esper: ${esper} | Job: ${m1} | Freehire: ${freehire ? 'Yes' : 'No'} | ${ageText}`
   )
 })
 
