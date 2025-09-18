@@ -1,6 +1,5 @@
 import { createBotCommand } from '@twurple/easy-bot'
 import { ffbotService } from '@core/services/ffbot'
-import { toSuperscript } from '@core/utils/superscript'
 
 export const ffbot = createBotCommand('ffbot', async (_, { say }) => {
   const metadata = ffbotService.getMetadata()

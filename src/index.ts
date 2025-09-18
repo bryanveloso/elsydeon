@@ -25,7 +25,7 @@ const startup = async () => {
     }
 
     // Initialize FFBot service
-    await ffbotService.initialize()
+    // await ffbotService.initialize()
 
     console.log('All services initialized successfully')
   } catch (error) {
