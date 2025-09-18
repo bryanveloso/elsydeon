@@ -71,103 +71,103 @@ interface PlayerStats {
 }
 
 class FFBotService extends EventEmitter {
-  private static instance: FFBotService;
-  private metadataCache: FFBotMetadata | null = null;
-  private hireCache: HireData | null = null;
-  private playerCache: Map<string, PlayerStats> = new Map();
-  private lastRefresh: Date | null = null;
-  private fileModifiedTime: Date | null = null;
-  private refreshTimer: NodeJS.Timeout | null = null;
-  private watcher: any = null;
-  
-  private readonly FFBOT_PATH = '/usr/src/app/ffbot';
-  private readonly METADATA_FILE = `${this.FFBOT_PATH}/playerdatabase.ini`;
-  private readonly HIRE_FILE = `${this.FFBOT_PATH}/hire.ini`;
-  private readonly REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
-  
+  private static instance: FFBotService
+  private metadataCache: FFBotMetadata | null = null
+  private hireCache: HireData | null = null
+  private playerCache: Map<string, PlayerStats> = new Map()
+  private lastRefresh: Date | null = null
+  private fileModifiedTime: Date | null = null
+  private refreshTimer: NodeJS.Timer | null = null
+  private watcher: any = null
+
+  private readonly FFBOT_PATH = '/usr/src/app/ffbot'
+  private readonly METADATA_FILE = `${this.FFBOT_PATH}/playerdatabase.ini`
+  private readonly HIRE_FILE = `${this.FFBOT_PATH}/hire.ini`
+  private readonly REFRESH_INTERVAL = 10 * 60 * 1000 // 10 minutes
+
   private constructor() {
-    super();
+    super()
   }
-  
+
   static getInstance(): FFBotService {
     if (!FFBotService.instance) {
-      FFBotService.instance = new FFBotService();
+      FFBotService.instance = new FFBotService()
     }
-    return FFBotService.instance;
+    return FFBotService.instance
   }
-  
+
   async initialize(): Promise<void> {
-    console.log('[FFBot] Initializing FFBot service...');
-    
+    console.log('[FFBot] Initializing FFBot service...')
+
     // Initial load
-    await this.refresh();
-    
+    await this.refresh()
+
     // Set up file watcher
-    this.setupWatcher();
-    
+    this.setupWatcher()
+
     // Set up periodic refresh as backup
     this.refreshTimer = setInterval(() => {
-      this.refresh().catch(console.error);
-    }, this.REFRESH_INTERVAL);
-    
-    console.log('[FFBot] Service initialized successfully');
+      this.refresh().catch(console.error)
+    }, this.REFRESH_INTERVAL)
+
+    console.log('[FFBot] Service initialized successfully')
   }
-  
+
   private setupWatcher(): void {
     try {
       // Watch the directory for changes
       this.watcher = watch(this.FFBOT_PATH, { recursive: false }, async (eventType, filename) => {
         // Ignore FUSE temporary files and other temporary files
         if (filename && (filename.startsWith('.fuse_hidden') || filename.startsWith('.'))) {
-          return;
+          return
         }
 
         if (filename === 'playerdatabase.ini' || filename === 'hire.ini') {
-          console.log(`[FFBot] File changed: ${filename}`);
-          await this.refresh();
+          console.log(`[FFBot] File changed: ${filename}`)
+          await this.refresh()
         }
-      });
+      })
     } catch (error) {
-      console.error('[FFBot] Failed to set up file watcher:', error);
+      console.error('[FFBot] Failed to set up file watcher:', error)
     }
   }
-  
+
   private async refresh(): Promise<void> {
     try {
-      console.log('[FFBot] Refreshing FFBot data...');
+      console.log('[FFBot] Refreshing FFBot data...')
 
       // Read metadata/player file and get its modification time
-      let metadataContent: string;
-      let fileStats: any;
+      let metadataContent: string
+      let fileStats: any
 
       try {
-        [metadataContent, fileStats] = await Promise.all([
+        ;[metadataContent, fileStats] = await Promise.all([
           readFile(this.METADATA_FILE, 'utf-8'),
           stat(this.METADATA_FILE)
-        ]);
+        ])
       } catch (readError: any) {
         // File might be temporarily locked or being written
         if (readError.code === 'ENOENT' || readError.code === 'EBUSY') {
-          console.log('[FFBot] File temporarily unavailable, will retry on next refresh');
-          return;
+          console.log('[FFBot] File temporarily unavailable, will retry on next refresh')
+          return
         }
-        throw readError;
+        throw readError
       }
 
-      this.fileModifiedTime = fileStats.mtime;
-      
-      const metadataParsed = parse(metadataContent);
-      
+      this.fileModifiedTime = fileStats.mtime
+
+      const metadataParsed = parse(metadataContent)
+
       // Clear and rebuild player cache
-      this.playerCache.clear();
-      
+      this.playerCache.clear()
+
       // Parse all sections - metadata is one, the rest are players
       for (const [section, data] of Object.entries(metadataParsed)) {
-        if (section === 'metadata') continue;
-        
+        if (section === 'metadata') continue
+
         // This is a player section
         if (typeof data === 'object' && data !== null) {
-          const playerData = data as any;
+          const playerData = data as any
           const stats: PlayerStats = {
             hp: parseInt(playerData.hp) || 0,
             atk: parseInt(playerData.atk) || 0,
@@ -208,30 +208,30 @@ class FFBotService extends EventEmitter {
             card: playerData.card?.replace(/"/g, ''),
             card_collection: playerData.card_collection ? parseInt(playerData.card_collection) : undefined,
             card_passive: (playerData.card_passive || '').replace(/"/g, ''),
-            card_active: (playerData.card_active || '').replace(/"/g, ''),
-          };
-          
+            card_active: (playerData.card_active || '').replace(/"/g, '')
+          }
+
           // Store with lowercase key for case-insensitive lookup
-          this.playerCache.set(section.toLowerCase(), stats);
+          this.playerCache.set(section.toLowerCase(), stats)
         }
       }
-      
+
       if (metadataParsed.metadata) {
         // Parse card_list from string representation
-        const cardListStr = metadataParsed.metadata.card_list;
-        let cardList: string[] = [];
+        const cardListStr = metadataParsed.metadata.card_list
+        let cardList: string[] = []
         if (cardListStr) {
           try {
             // Remove brackets and quotes, then split
             cardList = cardListStr
               .replace(/[\[\]]/g, '')
               .split(',')
-              .map((card: string) => card.trim().replace(/"/g, ''));
+              .map((card: string) => card.trim().replace(/"/g, ''))
           } catch (e) {
-            console.error('[FFBot] Failed to parse card_list:', e);
+            console.error('[FFBot] Failed to parse card_list:', e)
           }
         }
-        
+
         this.metadataCache = {
           cycle: parseInt(metadataParsed.metadata.cycle) || 0,
           season: parseInt(metadataParsed.metadata.season) || 0,
@@ -249,76 +249,74 @@ class FFBotService extends EventEmitter {
           joblist: Boolean(metadataParsed.metadata.joblist),
           triple: Boolean(metadataParsed.metadata.triple),
           card_list: cardList,
-          rng: (metadataParsed.metadata.rng || '').replace(/"/g, ''),
-        };
+          rng: (metadataParsed.metadata.rng || '').replace(/"/g, '')
+        }
       }
-      
+
       // Read hire file
-      const hireContent = await readFile(this.HIRE_FILE, 'utf-8');
-      this.hireCache = parse(hireContent) as HireData;
-      
-      this.lastRefresh = new Date();
-      this.emit('refresh', { metadata: this.metadataCache, hire: this.hireCache });
-      
-      console.log('[FFBot] Data refreshed successfully');
+      const hireContent = await readFile(this.HIRE_FILE, 'utf-8')
+      this.hireCache = parse(hireContent) as HireData
+
+      this.lastRefresh = new Date()
+      this.emit('refresh', { metadata: this.metadataCache, hire: this.hireCache })
+
+      console.log('[FFBot] Data refreshed successfully')
     } catch (error) {
-      console.error('[FFBot] Failed to refresh data:', error);
+      console.error('[FFBot] Failed to refresh data:', error)
       // Don't clear cache on error - keep serving stale data
     }
   }
-  
+
   getMetadata(): FFBotMetadata | null {
-    return this.metadataCache;
+    return this.metadataCache
   }
-  
+
   getHireData(): HireData | null {
-    return this.hireCache;
+    return this.hireCache
   }
-  
+
   getPlayerHires(playerName: string): Record<string, boolean | number> | null {
-    if (!this.hireCache) return null;
-    
+    if (!this.hireCache) return null
+
     // Case-insensitive lookup
-    const key = Object.keys(this.hireCache).find(
-      k => k.toLowerCase() === playerName.toLowerCase()
-    );
-    
-    return key ? this.hireCache[key] : null;
+    const key = Object.keys(this.hireCache).find((k) => k.toLowerCase() === playerName.toLowerCase())
+
+    return key ? this.hireCache[key] : null
   }
-  
+
   getPlayerStats(playerName: string): PlayerStats | null {
     // Case-insensitive lookup
-    return this.playerCache.get(playerName.toLowerCase()) || null;
+    return this.playerCache.get(playerName.toLowerCase()) || null
   }
-  
+
   getLastRefresh(): Date | null {
-    return this.lastRefresh;
+    return this.lastRefresh
   }
-  
+
   getFileModifiedTime(): Date | null {
-    return this.fileModifiedTime;
+    return this.fileModifiedTime
   }
-  
+
   isAvailable(): boolean {
-    return this.metadataCache !== null;
+    return this.metadataCache !== null
   }
-  
+
   async forceRefresh(): Promise<void> {
-    await this.refresh();
+    await this.refresh()
   }
-  
+
   destroy(): void {
     if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-      this.refreshTimer = null;
+      clearInterval(this.refreshTimer)
+      this.refreshTimer = null
     }
-    
+
     if (this.watcher) {
-      this.watcher.close();
-      this.watcher = null;
+      this.watcher.close()
+      this.watcher = null
     }
-    
-    this.removeAllListeners();
+
+    this.removeAllListeners()
   }
 }
 
