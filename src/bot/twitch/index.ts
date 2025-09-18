@@ -98,10 +98,17 @@ export const init = async () => {
       // Continue anyway since this might be optional
     }
 
+    const startupMessages = [
+      `It appears that I have been rebooted.`,
+      `Is my helmet still on? Yes. Yes it is.`,
+      `I have returned from the void. Exdeath was not there.`,
+      `⬆️ ⬇️ ➡️ ⬅️ ⬆️`
+    ]
+
     // Set up event handlers
     bot.onConnect(() => {
       console.log(`Twitch: Connected to ${channels.length} channels: ${channels.join(', ')}`)
-      bot.say('avalonstar', `avalonEUREKA It appears that I have been rebooted.`)
+      bot.say('avalonstar', `avalonEUREKA ${startupMessages[Math.floor(Math.random() * startupMessages.length)]}`)
     })
 
     bot.onDisconnect((graceful) => {
