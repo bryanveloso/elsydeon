@@ -70,7 +70,7 @@ class FFBotService extends EventEmitter {
   private constructor() {
     super()
     // Get configuration from environment
-    const synthformUrl = Bun.env.SYNTHFORM_API_URL || 'http://localhost:7175/api'
+    const synthformUrl = Bun.env.SYNTHFORM_API_URL || 'http://host.docker.internal:7175/api'
     this.baseUrl = `${synthformUrl}/games/ffbot`
   }
 
