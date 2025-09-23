@@ -34,15 +34,22 @@ export const stats = createBotCommand('stats', async (params, { msg: { userInfo 
     return
   }
 
-  const { lv, ascension, hp, atk, mag, spi, unit, wins, card_passive, m1, m2, m3, m4, m5, m6, m7 } = playerStats
+  const { lv, ascension, hp, atk, mag, spi, unit, wins, card_passive, preferedstat, m1, m2, m3, m4, m5, m6, m7 } = playerStats
 
   // Collect all jobs/masteries
   const jobSlots = [m1, m2, m3, m4, m5, m6, m7].filter(job => job && job !== '')
   const jobDisplay = jobSlots.length > 0 ? jobSlots.join(' / ') : 'None'
 
+  // Format stats with preferred stat marked (skip if "none")
+  const pref = (preferedstat || '').toLowerCase().replace(/"/g, '')
+  const hpDisplay = pref === 'hp' ? `${hp.toLocaleString()}*` : hp.toLocaleString()
+  const atkDisplay = pref === 'atk' ? `${atk.toLocaleString()}*` : atk.toLocaleString()
+  const magDisplay = pref === 'mag' ? `${mag.toLocaleString()}*` : mag.toLocaleString()
+  const spiDisplay = pref === 'spi' ? `${spi.toLocaleString()}*` : spi.toLocaleString()
+
   say(
     `📊 ${targetUser} ${wins >= 100 ? '↗️' : ''} | Lv${lv.toLocaleString()} ${unit} | ` +
-      `HP: ${hp.toLocaleString()} ATK: ${atk.toLocaleString()} MAG: ${mag.toLocaleString()} SPI: ${spi.toLocaleString()} | ` +
+      `HP: ${hpDisplay} ATK: ${atkDisplay} MAG: ${magDisplay} SPI: ${spiDisplay} | ` +
       `Wins: ${wins} | Card: ${card_passive || 'None'} | Jobs: ${jobDisplay}`
   )
 })
