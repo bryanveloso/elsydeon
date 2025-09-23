@@ -2,6 +2,7 @@ import { BotCommand } from '@twurple/easy-bot'
 import { features } from './features.config'
 
 // Core commands
+import { cute } from './cute'
 import { punt } from './punt'
 import { slap } from './slap'
 
@@ -34,7 +35,7 @@ const commandList: BotCommand[] = []
 
 // Core commands
 if (features.core) {
-  commandList.push(punt, slap)
+  commandList.push(cute, punt, slap)
 }
 
 // Quote system

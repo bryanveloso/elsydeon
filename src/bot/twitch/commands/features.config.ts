@@ -4,7 +4,7 @@
  */
 
 export const features = {
-  core: true,        // punt, slap
+  core: true,        // cute, punt, slap
   quotes: true,      // quote
   ai: true,          // analyze
   ffbot: true,       // stats, ffrefresh (using synthform API)
