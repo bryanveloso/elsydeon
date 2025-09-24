@@ -134,24 +134,24 @@ class CampaignService {
     }
 
     const { name, metric, milestones } = campaign
-    const { total_subs, total_bits, total_donations, timer_seconds_remaining } = metric
+    const { total_subs, total_resubs, total_bits, timer_seconds_remaining } = metric
 
-    let message = `📊 ${name} | `
+    let message = `avalonHYPE ${name} | `
 
     // Add progress metrics
-    message += `Subs: ${total_subs.toLocaleString()} | `
-    message += `Bits: ${total_bits.toLocaleString()} | `
-    message += `Donations: $${total_donations.toFixed(2)} `
+    message += `avalonLOVE Subs: ${total_subs.toLocaleString()} | `
+    message += `avalonHUG Resubs: ${total_resubs.toLocaleString()} | `
+    message += `avalonPOP Bits: ${total_bits.toLocaleString()} | `
 
     // Add timer if running
     if (timer_seconds_remaining !== null && timer_seconds_remaining > 0) {
-      message += `| ⏱️ Timer: ${this.formatTimer(timer_seconds_remaining)} `
+      message += `| avalonPAUSE Timer: ${this.formatTimer(timer_seconds_remaining)} `
     }
 
     // Add next milestone
-    const nextMilestone = milestones.find(m => !m.is_unlocked)
+    const nextMilestone = milestones.find((m) => !m.is_unlocked)
     if (nextMilestone) {
-      message += `| Next Goal: "${nextMilestone.title}" at ${nextMilestone.threshold}`
+      message += `| avalonNOTE Next Goal: "${nextMilestone.title}" at ${nextMilestone.threshold}`
     }
 
     return message

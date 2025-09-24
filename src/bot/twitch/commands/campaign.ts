@@ -107,8 +107,8 @@ export const progress = createBotCommand('progress', async (_, { say }) => {
     ? Math.round((unlockedCount / milestones.length) * 100)
     : 0
 
-  let message = `📈 Campaign Progress: ${progressPercent}% (${unlockedCount}/${milestones.length} milestones) | `
-  message += `${metric.total_subs} subs, ${metric.total_bits} bits`
+  let message = `avalonNOTE Campaign Progress: ${progressPercent}% (${unlockedCount}/${milestones.length} milestones) | `
+  message += `${metric.total_subs} subs, ${metric.total_resubs} resubs, ${metric.total_bits} bits`
 
   say(message)
 })
