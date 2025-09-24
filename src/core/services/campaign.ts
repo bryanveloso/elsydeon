@@ -65,7 +65,7 @@ class CampaignService {
     }
 
     try {
-      const url = `${this.baseUrl}/active/`
+      const url = `${this.baseUrl}/active`
       console.log('[Campaign] Fetching from:', url)
 
       const response = await fetch(url)
@@ -217,7 +217,7 @@ class CampaignService {
    */
   async startTimer(): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch(`${this.baseUrl}/timer/start/`, {
+      const response = await fetch(`${this.baseUrl}/timer/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -249,7 +249,7 @@ class CampaignService {
    */
   async pauseTimer(): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch(`${this.baseUrl}/timer/pause/`, {
+      const response = await fetch(`${this.baseUrl}/timer/pause`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
