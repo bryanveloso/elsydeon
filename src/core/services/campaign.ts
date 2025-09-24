@@ -10,7 +10,6 @@ interface Milestone {
   is_unlocked: boolean
   unlocked_at: string | null
   image_url: string | null
-  announcement_text: string | null
 }
 
 interface Metric {
@@ -51,7 +50,8 @@ class CampaignService {
 
   constructor() {
     // Get configuration from environment
-    const synthformUrl = Bun.env.SYNTHFORM_API_URL || 'http://localhost:8000/api'
+    // Use host.docker.internal for Docker, or localhost for local dev
+    const synthformUrl = Bun.env.SYNTHFORM_API_URL || 'http://host.docker.internal:7175/api'
     this.baseUrl = `${synthformUrl}/campaigns`
   }
 
@@ -65,25 +65,36 @@ class CampaignService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/active/`)
+      const url = `${this.baseUrl}/active/`
+      console.log('[Campaign] Fetching from:', url)
+
+      const response = await fetch(url)
 
       if (!response.ok) {
         if (response.status === 404) {
+          console.log('[Campaign] No active campaign found')
           // No active campaign
           this.cache = { data: null, timestamp: Date.now() }
           return null
         }
+        console.error(`[Campaign] HTTP error! status: ${response.status}`)
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
       const data = await response.json()
+      console.log('[Campaign] Fetched campaign:', data.name)
 
       // Cache the response
       this.cache = { data, timestamp: Date.now() }
 
       return data as Campaign
     } catch (error) {
-      console.error('Failed to fetch active campaign:', error)
+      console.error('[Campaign] Failed to fetch active campaign:', error)
+      // Return cached data if available, even if expired
+      if (this.cache?.data) {
+        console.log('[Campaign] Returning stale cache due to error')
+        return this.cache.data
+      }
       return null
     }
   }
