@@ -36,9 +36,10 @@ export const stats = createBotCommand('stats', async (params, { msg: { userInfo 
 
   const { lv, ascension, hp, atk, mag, spi, unit, wins, card_passive, preferedstat, m1, m2, m3, m4, m5, m6, m7 } = playerStats
 
-  // Collect all jobs/masteries
-  const jobSlots = [m1, m2, m3, m4, m5, m6, m7].filter(job => job && job !== '')
-  const jobDisplay = jobSlots.length > 0 ? jobSlots.join(' / ') : 'None'
+  // m1 is current job, m2-m7 are masteries
+  const currentJob = m1 || 'None'
+  const masteries = [m2, m3, m4, m5, m6, m7].filter(job => job && job !== '')
+  const jobDisplay = masteries.length > 0 ? `${currentJob} (Mastered: ${masteries.join(', ')})` : currentJob
 
   // Format stats with preferred stat marked (skip if "none")
   const pref = (preferedstat || '').toLowerCase().replace(/"/g, '')

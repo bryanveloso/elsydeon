@@ -141,7 +141,7 @@ class CampaignService {
     // Add progress metrics
     message += `avalonLOVE Subs: ${total_subs.toLocaleString()} | `
     message += `avalonHUG Resubs: ${total_resubs.toLocaleString()} | `
-    message += `avalonPOP Bits: ${total_bits.toLocaleString()} | `
+    message += `avalonPOP Bits: ${total_bits.toLocaleString()} `
 
     // Add timer if running
     if (timer_seconds_remaining !== null && timer_seconds_remaining > 0) {
