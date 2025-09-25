@@ -18,6 +18,8 @@ import { ffrefresh, stats } from './ffbot'
 // Campaign/Subathon
 import {
   campaign,
+  gifts,
+  gifters,
   milestones,
   nextgoal,
   pausetimer,
@@ -63,7 +65,9 @@ if (features.campaign) {
     timer,
     progress,
     starttimer,
-    pausetimer
+    pausetimer,
+    gifts,
+    gifters
   )
 }
 

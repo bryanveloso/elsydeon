@@ -112,3 +112,41 @@ export const progress = createBotCommand('progress', async (_, { say }) => {
 
   say(message)
 })
+
+/**
+ * Show top gift contributors
+ */
+export const gifts = createBotCommand('gifts', async (params, { say }) => {
+  // Parse optional limit parameter
+  const limitStr = params[0]
+  const limit = limitStr ? Math.min(Math.max(parseInt(limitStr), 1), 10) : 5
+
+  const message = await campaignService.getGiftLeaderboardMessage(limit)
+  say(message)
+})
+
+/**
+ * Alias for gifts command
+ */
+export const gifters = createBotCommand('gifters', async (params, { say }) => {
+  const limitStr = params[0]
+  const limit = limitStr ? Math.min(Math.max(parseInt(limitStr), 1), 10) : 5
+
+  const message = await campaignService.getGiftLeaderboardMessage(limit)
+  say(message)
+})
+
+/**
+ * Show top gift contributor
+ */
+export const topgifter = createBotCommand('topgifter', async (_, { say }) => {
+  const leaderboard = await campaignService.getGiftLeaderboard(1)
+
+  if (leaderboard.length === 0) {
+    say('No gift subscriptions recorded yet for this campaign.')
+    return
+  }
+
+  const top = leaderboard[0]
+  say(`👑 Top Gift Contributor: ${top.display_name} with ${top.total_count} gift${top.total_count !== 1 ? 's' : ''} (T1: ${top.tier1_count}, T2: ${top.tier2_count}, T3: ${top.tier3_count})`)
+})

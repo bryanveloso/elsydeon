@@ -25,6 +25,18 @@ interface Metric {
   updated_at: string
 }
 
+interface GiftLeaderboardEntry {
+  member_id: string
+  display_name: string
+  username: string | null
+  tier1_count: number
+  tier2_count: number
+  tier3_count: number
+  total_count: number
+  first_gift_at: string | null
+  last_gift_at: string | null
+}
+
 interface Campaign {
   id: string
   name: string
@@ -274,6 +286,58 @@ class CampaignService {
       console.error('Failed to pause timer:', error)
       return { success: false, message: 'Failed to pause timer' }
     }
+  }
+
+  /**
+   * Get gift leaderboard for the active campaign
+   */
+  async getGiftLeaderboard(limit: number = 5): Promise<GiftLeaderboardEntry[]> {
+    try {
+      const url = `${this.baseUrl}/active/gifts/leaderboard?limit=${limit}`
+      console.log('[Campaign] Fetching gift leaderboard from:', url)
+
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.log('[Campaign] No active campaign for leaderboard')
+          return []
+        }
+        console.error(`[Campaign] HTTP error! status: ${response.status}`)
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('[Campaign] Fetched gift leaderboard:', data.length, 'entries')
+
+      return data as GiftLeaderboardEntry[]
+    } catch (error) {
+      console.error('[Campaign] Failed to fetch gift leaderboard:', error)
+      return []
+    }
+  }
+
+  /**
+   * Format gift leaderboard message
+   */
+  async getGiftLeaderboardMessage(limit: number = 5): Promise<string> {
+    const leaderboard = await this.getGiftLeaderboard(limit)
+
+    if (leaderboard.length === 0) {
+      return 'No gift subscriptions recorded yet for this campaign.'
+    }
+
+    let message = '🎁 Top Gift Contributors: '
+
+    // Format each entry
+    const entries = leaderboard.map((entry, index) => {
+      const emoji = index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`
+      return `${emoji} ${entry.display_name} (${entry.total_count})`
+    })
+
+    message += entries.join(' | ')
+
+    return message
   }
 }
 
