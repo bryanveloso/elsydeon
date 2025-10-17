@@ -11,7 +11,6 @@ services:
     volumes:
       - /Users/Avalonstar/Code/bryanveloso/elsydeon/tokens.66977097.json:/usr/src/app/tokens.66977097.json
       - /Users/Avalonstar/Code/bryanveloso/elsydeon/data:/usr/src/app/data
-      - /Volumes/Workspace/Synthform/FFBot:/usr/src/app/ffbot:ro
     environment:
       # Discord
       - DISCORD_TOKEN=${DISCORD_TOKEN}
