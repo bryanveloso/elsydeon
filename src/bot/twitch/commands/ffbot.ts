@@ -14,6 +14,10 @@ export const ffbot = createBotCommand('ffbot', async (_, { say }) => {
   say(`🎮 FFBot - Season ${season}, Cycle ${cycle} | `)
 })
 
+export const getinthere = createBotCommand('getinthere', async (_, { say }) => {
+  say('!join')
+})
+
 export const stats = createBotCommand('stats', async (params, { msg: { userInfo }, say }) => {
   // If no args, look up the user who sent the command
   // If one arg, look up that username (stripping @ if present)

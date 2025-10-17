@@ -13,7 +13,7 @@ import { quote } from './quote'
 import { analyze } from './analyze'
 
 // FFBot integration
-import { ffrefresh, stats } from './ffbot'
+import { ffrefresh, getinthere, stats } from './ffbot'
 
 // Campaign/Subathon
 import {
@@ -52,7 +52,7 @@ if (features.ai) {
 
 // FFBot integration
 if (features.ffbot) {
-  commandList.push(stats, ffrefresh)
+  commandList.push(stats, ffrefresh, getinthere)
 }
 
 // Campaign features
