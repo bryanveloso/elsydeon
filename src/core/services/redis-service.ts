@@ -17,7 +17,11 @@ export interface AdStartedEvent {
   duration: number
 }
 
-export type AdEvent = AdWarningEvent | AdCountdownEvent | AdStartedEvent
+export interface AdEndedEvent {
+  type: 'ad_ended'
+}
+
+export type AdEvent = AdWarningEvent | AdCountdownEvent | AdStartedEvent | AdEndedEvent
 
 export interface OBSPerformanceWarningEvent {
   event_type: 'obs.performance.warning'
@@ -62,6 +66,8 @@ export class RedisService {
         return { type: 'countdown', seconds: data.seconds }
       } else if (data.type === 'ad_started' && typeof data.duration === 'number') {
         return { type: 'ad_started', duration: data.duration }
+      } else if (data.type === 'ad_ended') {
+        return { type: 'ad_ended' }
       }
 
       return null

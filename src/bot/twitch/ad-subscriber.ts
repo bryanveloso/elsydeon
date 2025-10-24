@@ -62,7 +62,11 @@ export class AdSubscriber {
 
       case 'ad_started':
         console.log(`[Ads] Ad started: ${event.duration}s`)
-        // return `🎬 Running ${event.duration}s ad now. BRB! Take a stretch, hydrate, check the Discord!`
+        return `Running ${event.duration} seconds of ads now. We apologize for the interruption to your programming. Please enjoy this time to stretch, grab a snack, or reflect on how we got to this point. avalonYEP`
+
+      case 'ad_ended':
+        console.log(`[Ads] Ad ended`)
+        return `The ad block has completed. You may now return to your irregularly scheduled programming. avalonLOVE`
 
       default:
         return null
