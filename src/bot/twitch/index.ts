@@ -1,5 +1,7 @@
 import { RefreshingAuthProvider, type RefreshingAuthProviderConfig, type AccessToken } from '@twurple/auth'
 import { Bot, BotCommand, createBotCommand } from '@twurple/easy-bot'
+import { AdSubscriber } from './ad-subscriber'
+import { OBSSubscriber } from './obs-subscriber'
 
 // Import commands from central registry
 import { commands } from './commands'
@@ -114,6 +116,14 @@ export const init = async () => {
     bot.onDisconnect((graceful) => {
       console.log(`Twitch: Disconnected ${graceful ? 'gracefully' : 'unexpectedly'}`)
     })
+
+    // Start ad notification subscriber
+    const adSubscriber = new AdSubscriber(bot)
+    await adSubscriber.start()
+
+    // Start OBS performance monitoring subscriber
+    const obsSubscriber = new OBSSubscriber(bot)
+    await obsSubscriber.start()
 
     return bot
   } catch (error) {

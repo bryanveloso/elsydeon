@@ -34,6 +34,7 @@
     "discord.js": "^14.21.0",
     "drizzle-orm": "^0.29.5",
     "ini": "^5.0.0",
+    "ioredis": "^5.8.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.1.11"
