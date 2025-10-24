@@ -112,7 +112,7 @@ export class QuoteService {
 
   async addQuote(params: QuoteAddParams): Promise<{ id: number } | null> {
     try {
-      const url = this.baseUrl
+      const url = `${this.baseUrl}/`
       const response = await fetch(url, {
         method: 'POST',
         headers: {
