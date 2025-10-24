@@ -25,10 +25,10 @@ export const apiRoutes = {
     
     // Transform quotes to match Landale API format
     const transformedQuotes = result.quotes.map(quote => ({
-      id: quote.id,
+      id: quote.number,
       text: quote.text,
-      quotee: quote.quotee,
-      created_at: quote.timestamp
+      quotee: quote.quotee.display_name,
+      created_at: quote.created_at
     }))
 
     return jsonResponse({
@@ -86,10 +86,10 @@ export const apiRoutes = {
 
     // Transform quote to match Landale API format
     const transformedQuote = {
-      id: quote.id,
+      id: quote.number,
       text: quote.text,
-      quotee: quote.quotee,
-      created_at: quote.timestamp
+      quotee: quote.quotee.display_name,
+      created_at: quote.created_at
     }
 
     return jsonResponse(transformedQuote)

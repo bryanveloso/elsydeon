@@ -22,17 +22,17 @@ export const quote = createBotCommand('quote', async (params, { say, msg: { user
         return
       }
 
-      say(`I found this quote: “${quote.text}” - ${quote.quotee} (#${quote.id}, ${quote.year})`)
+      say(`I found this quote: "${quote.text}" - ${quote.quotee.display_name} (#${quote.number}, ${quote.year})`)
     } else if (params[0] === 'latest') {
       // !quote latest - Get the most recently added quote
       const quote = await quoteService.getLatestQuote()
 
       if (!quote) {
-        say('There are no quotes! Uh, that’s a problem. avalonWHY')
+        say('There are no quotes! Uh, that's a problem. avalonWHY')
         return
       }
 
-      say(`I found this quote: “${quote.text}” ~ ${quote.quotee} (#${quote.id}, ${quote.year})`)
+      say(`I found this quote: "${quote.text}" ~ ${quote.quotee.display_name} (#${quote.number}, ${quote.year})`)
     } else if (params[0] === 'add' && params.length > 1) {
       // !quote add <text> - <quotee> - Add new quote
       if (!userInfo.isBroadcaster && !userInfo.isMod && !userInfo.isVip) {
@@ -86,10 +86,10 @@ export const quote = createBotCommand('quote', async (params, { say, msg: { user
       const quote = quotes[0]
 
       if (totalMatches === 1) {
-        say(`I found this quote: “${quote.text}” ~ ${quote.quotee} (#${quote.id}, ${quote.year})`)
+        say(`I found this quote: "${quote.text}" ~ ${quote.quotee.display_name} (#${quote.number}, ${quote.year})`)
       } else {
         say(
-          `I found ${totalMatches} quotes with “${searchText}”. Here's one: “${quote.text}” ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
+          `I found ${totalMatches} quotes with "${searchText}". Here's one: "${quote.text}" ~ ${quote.quotee.display_name} (#${quote.number}, ${quote.year})`
         )
       }
     } else if (!isNaN(Number(params[0]))) {
@@ -102,7 +102,7 @@ export const quote = createBotCommand('quote', async (params, { say, msg: { user
         return
       }
 
-      say(`Quote #${quote.id}: “${quote.text}” - ${quote.quotee} (${quote.year})`)
+      say(`Quote #${quote.number}: "${quote.text}" - ${quote.quotee.display_name} (${quote.year})`)
     } else if (params[0] === 'user' && params.length > 1) {
       // !quote user <username> - Search for quotes said by a specific user
       const username = params.slice(1).join(' ').trim()
@@ -132,18 +132,18 @@ export const quote = createBotCommand('quote', async (params, { say, msg: { user
 
       if (totalMatches === 1) {
         if (isSelf) {
-          say(`I found this quote from you: "${quote.text}" ~ ${quote.quotee} (#${quote.id}, ${quote.year})`)
+          say(`I found this quote from you: "${quote.text}" ~ ${quote.quotee.display_name} (#${quote.number}, ${quote.year})`)
         } else {
-          say(`I found this quote from ${searchName}: "${quote.text}" ~ ${quote.quotee} (#${quote.id}, ${quote.year})`)
+          say(`I found this quote from ${searchName}: "${quote.text}" ~ ${quote.quotee.display_name} (#${quote.number}, ${quote.year})`)
         }
       } else {
         if (isSelf) {
           say(
-            `I found ${totalMatches} quotes from you. Here's one: "${quote.text}" ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
+            `I found ${totalMatches} quotes from you. Here's one: "${quote.text}" ~ ${quote.quotee.display_name} (#${quote.number}, ${quote.year})`
           )
         } else {
           say(
-            `I found ${totalMatches} quotes from ${searchName}. Here's one: "${quote.text}" ~ ${quote.quotee} (#${quote.id}, ${quote.year})`
+            `I found ${totalMatches} quotes from ${searchName}. Here's one: "${quote.text}" ~ ${quote.quotee.display_name} (#${quote.number}, ${quote.year})`
           )
         }
       }
