@@ -45,7 +45,7 @@ export class RedisService {
   private redisUrl: string
 
   constructor() {
-    this.redisUrl = Bun.env.REDIS_URL || 'redis://localhost:6379'
+    this.redisUrl = Bun.env.REDIS_URL || 'redis://host.docker.internal:6379'
   }
 
   /**

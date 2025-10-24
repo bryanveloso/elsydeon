@@ -17,7 +17,7 @@ export class OBSSubscriber {
   private readonly CLEAR_DELAY = 60 * 1000 // 60 seconds of stability required
 
   constructor(bot: Bot) {
-    const redisUrl = Bun.env.REDIS_URL || 'redis://localhost:6379'
+    const redisUrl = Bun.env.REDIS_URL || 'redis://host.docker.internal:6379'
     this.subscriber = new Redis(redisUrl)
     this.bot = bot
     this.channel = Bun.env.TWITCH_CHANNELS?.split(',')[0] || 'avalonstar'
