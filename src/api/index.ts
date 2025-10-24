@@ -23,12 +23,14 @@ export const apiRoutes = {
 
     const result = await quoteService.getAllQuotesPaginated(page, perPage)
     
-    // Transform quotes to match Landale API format
+    // Transform quotes to match React app format
     const transformedQuotes = result.quotes.map(quote => ({
       id: quote.number,
       text: quote.text,
       quotee: quote.quotee.display_name,
-      created_at: quote.created_at
+      quoter: quote.quoter.display_name,
+      year: quote.year,
+      timestamp: quote.created_at
     }))
 
     return jsonResponse({
@@ -40,13 +42,29 @@ export const apiRoutes = {
   // GET /api/quotes/latest
   async getLatestQuotes() {
     const latest = await quoteService.getLatestQuotes(25)
-    return jsonResponse(latest)
+    const transformed = latest.map(quote => ({
+      id: quote.number,
+      text: quote.text,
+      quotee: quote.quotee.display_name,
+      quoter: quote.quoter.display_name,
+      year: quote.year,
+      timestamp: quote.created_at
+    }))
+    return jsonResponse(transformed)
   },
 
   // GET /api/quotes/random
   async getRandomQuotes() {
     const random = await quoteService.getRandomQuotes(25)
-    return jsonResponse(random)
+    const transformed = random.map(quote => ({
+      id: quote.number,
+      text: quote.text,
+      quotee: quote.quotee.display_name,
+      quoter: quote.quoter.display_name,
+      year: quote.year,
+      timestamp: quote.created_at
+    }))
+    return jsonResponse(transformed)
   },
 
   // GET /api/quotes/search?q=...
@@ -59,7 +77,15 @@ export const apiRoutes = {
     }
 
     const { quotes } = await quoteService.searchQuotes(searchTerm, 20, false)
-    return jsonResponse(quotes)
+    const transformed = quotes.map(quote => ({
+      id: quote.number,
+      text: quote.text,
+      quotee: quote.quotee.display_name,
+      quoter: quote.quoter.display_name,
+      year: quote.year,
+      timestamp: quote.created_at
+    }))
+    return jsonResponse(transformed)
   },
 
   // GET /api/quotes/user/:name
@@ -69,7 +95,15 @@ export const apiRoutes = {
     }
 
     const { quotes } = await quoteService.getQuotesByUser(username, 20, false)
-    return jsonResponse(quotes)
+    const transformed = quotes.map(quote => ({
+      id: quote.number,
+      text: quote.text,
+      quotee: quote.quotee.display_name,
+      quoter: quote.quoter.display_name,
+      year: quote.year,
+      timestamp: quote.created_at
+    }))
+    return jsonResponse(transformed)
   },
 
   // GET /api/quotes/:id
@@ -84,12 +118,14 @@ export const apiRoutes = {
       return errorResponse('Quote not found', 404)
     }
 
-    // Transform quote to match Landale API format
+    // Transform quote to match React app format
     const transformedQuote = {
       id: quote.number,
       text: quote.text,
       quotee: quote.quotee.display_name,
-      created_at: quote.created_at
+      quoter: quote.quoter.display_name,
+      year: quote.year,
+      timestamp: quote.created_at
     }
 
     return jsonResponse(transformedQuote)
