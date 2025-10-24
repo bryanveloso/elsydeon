@@ -28,7 +28,7 @@ export const quote = createBotCommand('quote', async (params, { say, msg: { user
       const quote = await quoteService.getLatestQuote()
 
       if (!quote) {
-        say('There are no quotes! Uh, that's a problem. avalonWHY')
+        say('There are no quotes! Uh, that’s a problem. avalonWHY')
         return
       }
 
