@@ -1,14 +1,23 @@
-import { sql } from 'drizzle-orm'
-import { db } from '@core/db'
-import * as schema from '@core/schema'
+/**
+ * Quote service for fetching and managing quotes from the Synthform API
+ */
 
 export interface Quote {
-  id: number
+  id: string
+  number: number
   text: string
-  quotee: string
-  quoter: string
+  quotee: {
+    id: string
+    display_name: string
+    username: string | null
+  }
+  quoter: {
+    id: string
+    display_name: string
+    username: string | null
+  }
   year: number
-  timestamp: string
+  created_at: string
 }
 
 export interface QuoteAddParams {
@@ -17,15 +26,41 @@ export interface QuoteAddParams {
   quoter: string
 }
 
-export class QuoteService {
-  async getRandomQuotes(limit: number = 25): Promise<Quote[]> {
-    const result = await db
-      .select()
-      .from(schema.quotes)
-      .orderBy(sql`RANDOM()`)
-      .limit(limit)
+interface QuoteSearchResponse {
+  quotes: Quote[]
+  total_matches: number
+}
 
-    return result
+interface QuoteStatsResponse {
+  total_quotes: number
+  first_quote_year: number | null
+  last_quote_year: number | null
+  average_length: number
+}
+
+export class QuoteService {
+  private baseUrl: string
+
+  constructor() {
+    const synthformUrl = Bun.env.SYNTHFORM_API_URL || 'http://host.docker.internal:7175/api'
+    this.baseUrl = `${synthformUrl}/quotes`
+  }
+
+  async getRandomQuotes(limit: number = 25): Promise<Quote[]> {
+    try {
+      const url = `${this.baseUrl}/random?limit=${limit}`
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        return []
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('[Quotes] Error fetching random quotes:', error)
+      return []
+    }
   }
 
   async getRandomQuote(): Promise<Quote | null> {
@@ -34,13 +69,20 @@ export class QuoteService {
   }
 
   async getLatestQuotes(limit: number = 25): Promise<Quote[]> {
-    const result = await db
-      .select()
-      .from(schema.quotes)
-      .orderBy(sql`${schema.quotes.id} DESC`)
-      .limit(limit)
+    try {
+      const url = `${this.baseUrl}/latest?limit=${limit}`
+      const response = await fetch(url)
 
-    return result
+      if (!response.ok) {
+        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        return []
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('[Quotes] Error fetching latest quotes:', error)
+      return []
+    }
   }
 
   async getLatestQuote(): Promise<Quote | null> {
@@ -49,31 +91,51 @@ export class QuoteService {
   }
 
   async getQuoteById(id: number): Promise<Quote | null> {
-    const result = await db
-      .select()
-      .from(schema.quotes)
-      .where(sql`${schema.quotes.id} = ${id}`)
+    try {
+      const url = `${this.baseUrl}/${id}`
+      const response = await fetch(url)
 
-    return result.length > 0 ? result[0] : null
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null
+        }
+        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        return null
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('[Quotes] Error fetching quote by id:', error)
+      return null
+    }
   }
 
-  async addQuote(params: QuoteAddParams): Promise<{ id: number }> {
-    const { text, quotee, quoter } = params
-    const year = new Date().getFullYear()
-    const timestamp = new Date().toISOString()
-
-    const result = await db
-      .insert(schema.quotes)
-      .values({
-        text,
-        quotee,
-        quoter,
-        year,
-        timestamp
+  async addQuote(params: QuoteAddParams): Promise<{ id: number } | null> {
+    try {
+      const url = this.baseUrl
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: params.text,
+          quotee_username: params.quotee,
+          quoter_username: params.quoter,
+        }),
       })
-      .returning({ id: schema.quotes.id })
 
-    return { id: result[0].id }
+      if (!response.ok) {
+        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        return null
+      }
+
+      const quote: Quote = await response.json()
+      return { id: quote.number }
+    } catch (error) {
+      console.error('[Quotes] Error adding quote:', error)
+      return null
+    }
   }
 
   async searchQuotes(
@@ -81,33 +143,29 @@ export class QuoteService {
     limit: number = 25,
     random: boolean = false
   ): Promise<{ quotes: Quote[]; totalMatches: number }> {
-    const countResult = await db
-      .select({
-        count: sql`COUNT(*)`
+    try {
+      const params = new URLSearchParams({
+        q: searchText,
+        limit: limit.toString(),
+        random: random.toString(),
       })
-      .from(schema.quotes)
-      .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`)
+      const url = `${this.baseUrl}/search?${params}`
+      const response = await fetch(url)
 
-    const totalMatches = Number(countResult[0].count)
+      if (!response.ok) {
+        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        return { quotes: [], totalMatches: 0 }
+      }
 
-    if (totalMatches === 0) {
+      const data: QuoteSearchResponse = await response.json()
+      return {
+        quotes: data.quotes,
+        totalMatches: data.total_matches,
+      }
+    } catch (error) {
+      console.error('[Quotes] Error searching quotes:', error)
       return { quotes: [], totalMatches: 0 }
     }
-
-    const query = db
-      .select()
-      .from(schema.quotes)
-      .where(sql`${schema.quotes.text} LIKE ${'%' + searchText + '%'}`)
-
-    if (random) {
-      query.orderBy(sql`RANDOM()`)
-    } else {
-      query.orderBy(sql`${schema.quotes.id} DESC`)
-    }
-
-    const quotes = await query.limit(limit)
-
-    return { quotes, totalMatches }
   }
 
   async getQuotesByUser(
@@ -115,37 +173,32 @@ export class QuoteService {
     limit: number = 25,
     random: boolean = false
   ): Promise<{ quotes: Quote[]; totalMatches: number }> {
-    const countResult = await db
-      .select({
-        count: sql`COUNT(*)`
+    try {
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        random: random.toString(),
       })
-      .from(schema.quotes)
-      .where(sql`${schema.quotes.quotee} LIKE ${'%' + username + '%'}`)
+      const url = `${this.baseUrl}/by-user/${encodeURIComponent(username)}?${params}`
+      const response = await fetch(url)
 
-    const totalMatches = Number(countResult[0].count)
+      if (!response.ok) {
+        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        return { quotes: [], totalMatches: 0 }
+      }
 
-    if (totalMatches === 0) {
+      const data: QuoteSearchResponse = await response.json()
+      return {
+        quotes: data.quotes,
+        totalMatches: data.total_matches,
+      }
+    } catch (error) {
+      console.error('[Quotes] Error fetching quotes by user:', error)
       return { quotes: [], totalMatches: 0 }
     }
-
-    const query = db
-      .select()
-      .from(schema.quotes)
-      .where(sql`${schema.quotes.quotee} LIKE ${'%' + username + '%'}`)
-
-    if (random) {
-      query.orderBy(sql`RANDOM()`)
-    } else {
-      query.orderBy(sql`${schema.quotes.id} DESC`)
-    }
-
-    const quotes = await query.limit(limit)
-
-    return { quotes, totalMatches }
   }
 
   async getQuotesForAnalysis(username: string, sampleSize: number = 10): Promise<Quote[]> {
-    const { quotes, totalMatches } = await this.getQuotesByUser(username, sampleSize, true)
+    const { quotes } = await this.getQuotesByUser(username, sampleSize, true)
     return quotes
   }
 
@@ -155,30 +208,35 @@ export class QuoteService {
     lastQuoteYear: number | null
     averageLength: number
   }> {
-    const { totalMatches } = await this.getQuotesByUser(username, 1)
-    
-    if (totalMatches === 0) {
+    try {
+      const url = `${this.baseUrl}/stats/${encodeURIComponent(username)}`
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        return {
+          totalQuotes: 0,
+          firstQuoteYear: null,
+          lastQuoteYear: null,
+          averageLength: 0,
+        }
+      }
+
+      const data: QuoteStatsResponse = await response.json()
+      return {
+        totalQuotes: data.total_quotes,
+        firstQuoteYear: data.first_quote_year,
+        lastQuoteYear: data.last_quote_year,
+        averageLength: data.average_length,
+      }
+    } catch (error) {
+      console.error('[Quotes] Error fetching user stats:', error)
       return {
         totalQuotes: 0,
         firstQuoteYear: null,
         lastQuoteYear: null,
-        averageLength: 0
+        averageLength: 0,
       }
-    }
-
-    const allQuotes = await db
-      .select()
-      .from(schema.quotes)
-      .where(sql`${schema.quotes.quotee} LIKE ${'%' + username + '%'}`)
-
-    const years = allQuotes.map(q => q.year).sort()
-    const totalLength = allQuotes.reduce((sum, q) => sum + q.text.length, 0)
-
-    return {
-      totalQuotes: totalMatches,
-      firstQuoteYear: years[0],
-      lastQuoteYear: years[years.length - 1],
-      averageLength: Math.round(totalLength / totalMatches)
     }
   }
 
@@ -191,32 +249,38 @@ export class QuoteService {
       total_pages: number
     }
   }> {
-    // Get total count
-    const countResult = await db
-      .select({
-        count: sql`COUNT(*)`
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        per_page: perPage.toString(),
       })
-      .from(schema.quotes)
+      const url = `${this.baseUrl}/?${params}`
+      const response = await fetch(url)
 
-    const total = Number(countResult[0].count)
-    const totalPages = Math.ceil(total / perPage)
-    const offset = (page - 1) * perPage
+      if (!response.ok) {
+        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        return {
+          quotes: [],
+          pagination: {
+            page: 1,
+            per_page: perPage,
+            total: 0,
+            total_pages: 0,
+          },
+        }
+      }
 
-    // Get paginated quotes
-    const quotes = await db
-      .select()
-      .from(schema.quotes)
-      .orderBy(sql`${schema.quotes.id} DESC`)
-      .limit(perPage)
-      .offset(offset)
-
-    return {
-      quotes,
-      pagination: {
-        page,
-        per_page: perPage,
-        total,
-        total_pages: totalPages
+      return await response.json()
+    } catch (error) {
+      console.error('[Quotes] Error fetching paginated quotes:', error)
+      return {
+        quotes: [],
+        pagination: {
+          page: 1,
+          per_page: perPage,
+          total: 0,
+          total_pages: 0,
+        },
       }
     }
   }
@@ -227,23 +291,20 @@ export class QuoteService {
     first_quote_date: string
     last_quote_date: string
   }>> {
-    const result = await db
-      .select({
-        quotee: schema.quotes.quotee,
-        quote_count: sql`COUNT(*)`,
-        first_quote_date: sql`MIN(${schema.quotes.timestamp})`,
-        last_quote_date: sql`MAX(${schema.quotes.timestamp})`
-      })
-      .from(schema.quotes)
-      .groupBy(schema.quotes.quotee)
-      .orderBy(sql`COUNT(*) DESC`)
+    try {
+      const url = `${this.baseUrl}/users`
+      const response = await fetch(url)
 
-    return result.map(row => ({
-      quotee: row.quotee,
-      quote_count: Number(row.quote_count),
-      first_quote_date: row.first_quote_date as string,
-      last_quote_date: row.last_quote_date as string
-    }))
+      if (!response.ok) {
+        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        return []
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('[Quotes] Error fetching all users:', error)
+      return []
+    }
   }
 }
 

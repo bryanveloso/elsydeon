@@ -85,14 +85,14 @@ async function handleRandomQuote(interaction: CommandInteraction) {
   // Create a nice embed for the quote
   const embed = new EmbedBuilder()
     .setColor(0x0099ff)
-    .setTitle(`Quote #${quote.id}`)
+    .setTitle(`Quote #${quote.number}`)
     .setDescription(`"${quote.text}"`)
     .addFields(
-      { name: 'Said by', value: quote.quotee, inline: true },
+      { name: 'Said by', value: quote.quotee.display_name, inline: true },
       { name: 'Year', value: `${quote.year}`, inline: true },
-      { name: 'Added by', value: quote.quoter, inline: true }
+      { name: 'Added by', value: quote.quoter.display_name, inline: true }
     )
-    .setFooter({ text: `Quote #${quote.id}` })
+    .setFooter({ text: `Quote #${quote.number}` })
 
   await interaction.editReply({ embeds: [embed] })
 }
@@ -111,14 +111,14 @@ async function handleLatestQuote(interaction: CommandInteraction) {
   // Create a nice embed for the quote
   const embed = new EmbedBuilder()
     .setColor(0x0099ff)
-    .setTitle(`Latest Quote #${quote.id}`)
+    .setTitle(`Latest Quote #${quote.number}`)
     .setDescription(`"${quote.text}"`)
     .addFields(
-      { name: 'Said by', value: quote.quotee, inline: true },
+      { name: 'Said by', value: quote.quotee.display_name, inline: true },
       { name: 'Year', value: `${quote.year}`, inline: true },
-      { name: 'Added by', value: quote.quoter, inline: true }
+      { name: 'Added by', value: quote.quoter.display_name, inline: true }
     )
-    .setFooter({ text: `Added on ${new Date(quote.timestamp).toLocaleDateString()}` })
+    .setFooter({ text: `Added on ${new Date(quote.created_at).toLocaleDateString()}` })
 
   await interaction.editReply({ embeds: [embed] })
 }
@@ -140,14 +140,14 @@ async function handleGetQuote(interaction: CommandInteraction) {
   // Create a nice embed for the quote
   const embed = new EmbedBuilder()
     .setColor(0x0099ff)
-    .setTitle(`Quote #${quote.id}`)
+    .setTitle(`Quote #${quote.number}`)
     .setDescription(`"${quote.text}"`)
     .addFields(
-      { name: 'Said by', value: quote.quotee, inline: true },
+      { name: 'Said by', value: quote.quotee.display_name, inline: true },
       { name: 'Year', value: `${quote.year}`, inline: true },
-      { name: 'Added by', value: quote.quoter, inline: true }
+      { name: 'Added by', value: quote.quoter.display_name, inline: true }
     )
-    .setFooter({ text: `Quote #${quote.id}` })
+    .setFooter({ text: `Quote #${quote.number}` })
 
   await interaction.editReply({ embeds: [embed] })
 }
@@ -218,12 +218,12 @@ async function handleSearchQuote(interaction: ChatInputCommandInteraction) {
   // Create a nice embed for the quote
   const embed = new EmbedBuilder()
     .setColor(0x0099ff)
-    .setTitle(totalMatches === 1 ? `Quote #${quote.id}` : `Quote #${quote.id} (${totalMatches} matches)`)
+    .setTitle(totalMatches === 1 ? `Quote #${quote.number}` : `Quote #${quote.number} (${totalMatches} matches)`)
     .setDescription(`"${quote.text}"`)
     .addFields(
-      { name: 'Said by', value: quote.quotee, inline: true },
+      { name: 'Said by', value: quote.quotee.display_name, inline: true },
       { name: 'Year', value: `${quote.year}`, inline: true },
-      { name: 'Added by', value: quote.quoter, inline: true }
+      { name: 'Added by', value: quote.quoter.display_name, inline: true }
     )
 
   // Add footer with match info if multiple matches
@@ -232,7 +232,7 @@ async function handleSearchQuote(interaction: ChatInputCommandInteraction) {
       text: `${totalMatches} quotes match "${searchText}". Try the search again for a different result.`
     })
   } else {
-    embed.setFooter({ text: `Quote #${quote.id}` })
+    embed.setFooter({ text: `Quote #${quote.number}` })
   }
 
   await interaction.editReply({ embeds: [embed] })
@@ -270,12 +270,12 @@ async function handleUserQuote(interaction: ChatInputCommandInteraction) {
   // Build the title
   let title
   if (isSelf) {
-    title = totalMatches === 1 ? `Your Quote #${quote.id}` : `Your Quote #${quote.id} (${totalMatches} matches)`
+    title = totalMatches === 1 ? `Your Quote #${quote.number}` : `Your Quote #${quote.number} (${totalMatches} matches)`
   } else {
     title =
       totalMatches === 1
-        ? `Quote #${quote.id} from ${searchName}`
-        : `Quote #${quote.id} from ${searchName} (${totalMatches} matches)`
+        ? `Quote #${quote.number} from ${searchName}`
+        : `Quote #${quote.number} from ${searchName} (${totalMatches} matches)`
   }
 
   // Create a nice embed for the quote
@@ -284,9 +284,9 @@ async function handleUserQuote(interaction: ChatInputCommandInteraction) {
     .setTitle(title)
     .setDescription(`"${quote.text}"`)
     .addFields(
-      { name: 'Said by', value: quote.quotee, inline: true },
+      { name: 'Said by', value: quote.quotee.display_name, inline: true },
       { name: 'Year', value: `${quote.year}`, inline: true },
-      { name: 'Added by', value: quote.quoter, inline: true }
+      { name: 'Added by', value: quote.quoter.display_name, inline: true }
     )
 
   // Add footer with match info if multiple matches
@@ -296,7 +296,7 @@ async function handleUserQuote(interaction: ChatInputCommandInteraction) {
       : `${totalMatches} quotes from ${searchName}. Try the command again for a different result.`
     embed.setFooter({ text: footerText })
   } else {
-    embed.setFooter({ text: `Quote #${quote.id}` })
+    embed.setFooter({ text: `Quote #${quote.number}` })
   }
 
   await interaction.editReply({ embeds: [embed] })
