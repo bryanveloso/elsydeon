@@ -43,22 +43,26 @@ export const quote = createBotCommand('quote', async (params, { say, msg: { user
       // Join all parameters except "add" and look for the delimiter
       const quoteText = params.slice(1).join(' ')
       const regex = /"([^"]*?)" ~ (@[A-Za-z0-9_]+)/g
-      const parts = quoteText.split(' - ')
 
       if (regex.test(quoteText)) {
         const text = quoteText.split(regex)[1]
-        const quotee = quoteText.split(regex)[2]
+        const quotee = quoteText.split(regex)[2].replace(/^@/, '') // Strip @ prefix
         const quoter = userInfo.displayName
 
         try {
           // Insert the quote using the service
-          const { id } = await quoteService.addQuote({
+          const result = await quoteService.addQuote({
             text,
             quotee,
             quoter
           })
 
-          say(`I've added the quote #${id} to the database. Blame yourself or God. avalonSMUG`)
+          if (!result) {
+            say('Failed to add quote. Please try again later? avalonANGY')
+            return
+          }
+
+          say(`I've added the quote #${result.id} to the database. Blame yourself or God. avalonSMUG`)
         } catch (error) {
           console.error('Failed to add quote:', error)
           say('Failed to add quote. Please try again later? avalonANGY')

@@ -171,11 +171,16 @@ async function handleAddQuote(interaction: ChatInputCommandInteraction) {
 
   try {
     // Insert the quote using the service
-    const { id: quoteId } = await quoteService.addQuote({
+    const result = await quoteService.addQuote({
       text,
       quotee,
       quoter
     })
+
+    if (!result) {
+      await interaction.editReply('Failed to add quote. Please try again later.')
+      return
+    }
 
     // Create a confirmation embed
     const embed = new EmbedBuilder()
@@ -185,7 +190,7 @@ async function handleAddQuote(interaction: ChatInputCommandInteraction) {
       .addFields(
         { name: 'Said by', value: quotee, inline: true },
         { name: 'Added by', value: quoter, inline: true },
-        { name: 'ID', value: `#${quoteId}`, inline: true }
+        { name: 'ID', value: `#${result.id}`, inline: true }
       )
 
     await interaction.editReply({ embeds: [embed] })
