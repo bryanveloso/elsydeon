@@ -101,6 +101,8 @@ export const init = async () => {
     }
 
     const startupMessages = [
+      `I am named after a famous sword, so you know my wit is sharp.`,
+      `Nobody move. I can slap you with a trout at a moment's notice.`,
       `It appears that I have been rebooted.`,
       `Is my helmet still on? Yes. Yes it is.`,
       `I have returned from the void. Exdeath was not there.`,

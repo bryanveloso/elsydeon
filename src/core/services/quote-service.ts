@@ -306,6 +306,16 @@ export class QuoteService {
       return []
     }
   }
+
+  async getQuoteCount(): Promise<number> {
+    try {
+      const result = await this.getAllQuotesPaginated(1, 1)
+      return result.pagination.total
+    } catch (error) {
+      console.error('[Quotes] Error fetching quote count:', error)
+      return 0
+    }
+  }
 }
 
 // Export a singleton instance

@@ -1,8 +1,6 @@
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { db, setupShutdownHandler } from '@core/db'
-import * as schema from '@core/schema'
-import { sql } from 'drizzle-orm'
+import { setupShutdownHandler } from '@core/utils/shutdown'
 import { errorResponse, staticFileResponse } from '@core/utils/http'
 
 // Setup shutdown handler

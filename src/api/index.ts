@@ -1,4 +1,4 @@
-import { setupShutdownHandler } from '@core/db'
+import { setupShutdownHandler } from '@core/utils/shutdown'
 import { errorResponse, jsonResponse } from '@core/utils/http'
 import { quoteService } from '@core/services/quote-service'
 

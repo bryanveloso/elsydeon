@@ -1,4 +1,5 @@
-import { getQuoteCount, setupShutdownHandler } from '@core/db'
+import { setupShutdownHandler } from '@core/utils/shutdown'
+import { quoteService } from '@core/services/quote-service'
 import { init as discordInit } from './discord'
 import { init as twitchInit } from './twitch'
 
@@ -9,7 +10,7 @@ setupShutdownHandler()
 const startBots = async () => {
   try {
     // Load quote count and log it
-    const quoteCount = await getQuoteCount()
+    const quoteCount = await quoteService.getQuoteCount()
     console.log(`Loaded ${quoteCount} quotes...`)
 
     // Start Discord and Twitch bots

@@ -1,7 +1,7 @@
-import { getQuoteCount, setupShutdownHandler } from '@core/db'
+import { setupShutdownHandler } from '@core/utils/shutdown'
+import { quoteService } from '@core/services/quote-service'
 import { startBots } from '@bot/index'
 import { init as webInit } from '@web/index'
-import { ffbotService } from '@core/services/ffbot'
 
 // Add graceful shutdown handling
 setupShutdownHandler()
@@ -10,7 +10,7 @@ setupShutdownHandler()
 const startup = async () => {
   try {
     // Log quote count
-    const quoteCount = await getQuoteCount()
+    const quoteCount = await quoteService.getQuoteCount()
     console.log(`Loaded ${quoteCount} quotes...`)
 
     // Start Discord and Twitch bots
@@ -23,9 +23,6 @@ const startup = async () => {
     if (webEnabled) {
       await webInit(webPort)
     }
-
-    // Initialize FFBot service
-    // await ffbotService.initialize()
 
     console.log('All services initialized successfully')
   } catch (error) {
