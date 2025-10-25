@@ -14,7 +14,7 @@ export class OBSSubscriber {
 
   // Cooldowns in milliseconds
   private readonly WARNING_COOLDOWN = 2 * 60 * 1000 // 2 minutes
-  private readonly CLEAR_DELAY = 60 * 1000 // 60 seconds of stability required
+  private readonly CLEAR_DELAY = 5 * 60 * 1000 // 5 minutes of stability required
 
   constructor(bot: Bot) {
     const redisUrl = Bun.env.REDIS_URL || 'redis://host.docker.internal:6379'
