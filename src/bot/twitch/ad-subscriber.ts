@@ -63,7 +63,7 @@ export class AdSubscriber {
     switch (event.type) {
       case 'warning_start':
         console.log(`[Ads] Warning: ${event.seconds}s until ad`)
-        return `This is a message from the emergency ad break system. Incoming ad in ${event.seconds} seconds! avalonEUREKA`
+        return `This is a message from the emergency ad break system. Incoming ad in ${event.seconds} seconds!`
 
       case 'countdown':
         // Only announce at specific intervals
@@ -81,11 +81,11 @@ export class AdSubscriber {
 
       case 'ad_started':
         console.log(`[Ads] Ad started: ${event.duration}s`)
-        return `Running ${event.duration} seconds of ads now. We apologize for the interruption to your programming. Please enjoy this time to stretch, grab a snack, or reflect on how we got to this point. avalonYEP`
+        return `Running ${event.duration} seconds of ads now. We apologize for the interruption to your programming.`
 
       case 'ad_ended':
         console.log(`[Ads] Ad ended`)
-        return `The ad block has completed. You may now return to your irregularly scheduled programming. avalonLOVE`
+        return `The ad block has completed. You may now return to your irregularly scheduled programming.`
 
       default:
         return null
