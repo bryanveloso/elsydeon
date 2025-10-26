@@ -11,6 +11,7 @@ export class OBSSubscriber {
   private clearTimerId: Timer | null = null
   private pendingClearMessage: string | null = null
   private isInWarningState: boolean = false
+  private broadcasterStatus: string = 'offline'
 
   // Cooldowns in milliseconds
   private readonly WARNING_COOLDOWN = 2 * 60 * 1000 // 2 minutes
@@ -24,13 +25,15 @@ export class OBSSubscriber {
   }
 
   async start() {
-    // Subscribe to OBS events
-    await this.subscriber.subscribe('events:obs')
-    console.log('[OBS] Subscribed to Redis events:obs channel')
+    // Subscribe to OBS events and status updates
+    await this.subscriber.subscribe('events:obs', 'events:status')
+    console.log('[OBS] Subscribed to Redis events:obs and events:status channels')
 
     this.subscriber.on('message', (channel, message) => {
       if (channel === 'events:obs') {
         this.handleOBSMessage(message)
+      } else if (channel === 'events:status') {
+        this.handleStatusChange(message)
       }
     })
 
@@ -39,7 +42,23 @@ export class OBSSubscriber {
     })
   }
 
+  private handleStatusChange(message: string) {
+    try {
+      const data = JSON.parse(message)
+      if (data.data && data.data.status) {
+        this.broadcasterStatus = data.data.status
+        console.log(`[OBS] Broadcaster status updated: ${this.broadcasterStatus}`)
+      }
+    } catch (error) {
+      console.error('[OBS] Error parsing status message:', error)
+    }
+  }
+
   private handleOBSMessage(message: string) {
+    if (this.broadcasterStatus !== 'online') {
+      return
+    }
+
     const event = redisService.parseOBSMessage(message)
     if (!event) return
 

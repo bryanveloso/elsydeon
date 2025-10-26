@@ -6,6 +6,7 @@ export class AdSubscriber {
   private subscriber: Redis
   private bot: Bot
   private channel: string
+  private broadcasterStatus: string = 'offline'
 
   constructor(bot: Bot) {
     const redisUrl = Bun.env.REDIS_URL || 'redis://host.docker.internal:6379'
@@ -15,13 +16,15 @@ export class AdSubscriber {
   }
 
   async start() {
-    // Subscribe to ad notifications
-    await this.subscriber.subscribe('bot:ads')
-    console.log('[Ads] Subscribed to Redis bot:ads channel')
+    // Subscribe to ad notifications and status updates
+    await this.subscriber.subscribe('bot:ads', 'events:status')
+    console.log('[Ads] Subscribed to Redis bot:ads and events:status channels')
 
     this.subscriber.on('message', (channel, message) => {
       if (channel === 'bot:ads') {
         this.handleAdMessage(message)
+      } else if (channel === 'events:status') {
+        this.handleStatusChange(message)
       }
     })
 
@@ -30,7 +33,23 @@ export class AdSubscriber {
     })
   }
 
+  private handleStatusChange(message: string) {
+    try {
+      const data = JSON.parse(message)
+      if (data.data && data.data.status) {
+        this.broadcasterStatus = data.data.status
+        console.log(`[Ads] Broadcaster status updated: ${this.broadcasterStatus}`)
+      }
+    } catch (error) {
+      console.error('[Ads] Error parsing status message:', error)
+    }
+  }
+
   private handleAdMessage(message: string) {
+    if (this.broadcasterStatus !== 'online') {
+      return
+    }
+
     const event = redisService.parseAdMessage(message)
     if (!event) return
 
