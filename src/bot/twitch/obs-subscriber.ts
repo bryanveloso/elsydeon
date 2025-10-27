@@ -25,6 +25,17 @@ export class OBSSubscriber {
   }
 
   async start() {
+    // Get initial status from Redis
+    try {
+      const initialStatus = await this.subscriber.get('broadcaster:status')
+      if (initialStatus) {
+        this.broadcasterStatus = initialStatus
+        console.log(`[OBS] Initial broadcaster status: ${this.broadcasterStatus}`)
+      }
+    } catch (error) {
+      console.error('[OBS] Failed to get initial status from Redis:', error)
+    }
+
     // Subscribe to OBS events and status updates
     await this.subscriber.subscribe('events:obs', 'events:status')
     console.log('[OBS] Subscribed to Redis events:obs and events:status channels')

@@ -16,6 +16,17 @@ export class AdSubscriber {
   }
 
   async start() {
+    // Get initial status from Redis
+    try {
+      const initialStatus = await this.subscriber.get('broadcaster:status')
+      if (initialStatus) {
+        this.broadcasterStatus = initialStatus
+        console.log(`[Ads] Initial broadcaster status: ${this.broadcasterStatus}`)
+      }
+    } catch (error) {
+      console.error('[Ads] Failed to get initial status from Redis:', error)
+    }
+
     // Subscribe to ad notifications and status updates
     await this.subscriber.subscribe('bot:ads', 'events:status')
     console.log('[Ads] Subscribed to Redis bot:ads and events:status channels')
