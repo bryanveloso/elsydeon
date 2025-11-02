@@ -1,5 +1,5 @@
 import { createBotCommand } from '@twurple/easy-bot'
-import { quoteAnalyzerService, AnalysisPersonality } from '@core/services/quote-analyzer-service'
+import { quoteAnalyzerService, AnalysisPersonality } from '@core/services/quote-analyzer'
 
 // Command to analyze user quotes:
 // !analyze - analyze your own quotes with random personality

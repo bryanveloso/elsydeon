@@ -1,6 +1,6 @@
 import Redis from 'ioredis'
 import type { Bot } from '@twurple/easy-bot'
-import { redisService, type OBSEvent } from '@core/services/redis-service'
+import { redisService, type OBSEvent } from '@core/services/redis'
 
 export class OBSSubscriber {
   private subscriber: Redis

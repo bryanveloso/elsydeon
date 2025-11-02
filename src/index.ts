@@ -1,5 +1,5 @@
 import { setupShutdownHandler } from '@core/utils/shutdown'
-import { quoteService } from '@core/services/quote-service'
+import { quoteService } from '@core/services/quote'
 import { startBots } from '@bot/index'
 import { init as webInit } from '@web/index'
 

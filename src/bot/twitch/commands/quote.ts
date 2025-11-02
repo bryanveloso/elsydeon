@@ -1,5 +1,5 @@
 import { createBotCommand } from '@twurple/easy-bot'
-import { quoteService } from '@core/services/quote-service'
+import { quoteService } from '@core/services/quote'
 
 // Command to handle quotes in different forms:
 // !quote - get a random quote

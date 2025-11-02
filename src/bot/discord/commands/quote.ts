@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, CommandInteraction } from 'discord.js'
-import { quoteService } from '@core/services/quote-service'
+import { quoteService } from '@core/services/quote'
 
 export const data = new SlashCommandBuilder()
   .setName('quote')

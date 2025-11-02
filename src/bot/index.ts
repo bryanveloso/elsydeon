@@ -1,5 +1,5 @@
 import { setupShutdownHandler } from '@core/utils/shutdown'
-import { quoteService } from '@core/services/quote-service'
+import { quoteService } from '@core/services/quote'
 import { init as discordInit } from './discord'
 import { init as twitchInit } from './twitch'
 

@@ -1,6 +1,6 @@
 import { setupShutdownHandler } from '@core/utils/shutdown'
 import { errorResponse, jsonResponse } from '@core/utils/http'
-import { quoteService } from '@core/services/quote-service'
+import { quoteService } from '@core/services/quote'
 
 // Setup shutdown handler
 setupShutdownHandler()
