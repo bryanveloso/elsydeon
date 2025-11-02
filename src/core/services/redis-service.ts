@@ -28,8 +28,13 @@ export interface OBSPerformanceWarningEvent {
   data: {
     isWarning: boolean
     dropRate: number
-    skippedFrames: number
-    totalFrames: number
+    renderDropRate: number
+    outputDropRate: number
+    congestion: number
+    severity: 'minor' | 'moderate' | 'critical'
+    issueType: 'rendering_lag' | 'network_congestion' | 'encoding_lag'
+    message: string
+    recommendation: string
   }
 }
 
@@ -38,8 +43,7 @@ export interface OBSPerformanceOkEvent {
   data: {
     isWarning: boolean
     dropRate: number
-    skippedFrames: number
-    totalFrames: number
+    message: string
   }
 }
 
@@ -85,21 +89,28 @@ export class RedisService {
       const data = JSON.parse(message)
 
       // Validate and return typed event
-      if (
-        (data.event_type === 'obs.performance.warning' || data.event_type === 'obs.performance.ok') &&
-        data.data &&
-        typeof data.data.isWarning === 'boolean' &&
-        typeof data.data.dropRate === 'number' &&
-        typeof data.data.skippedFrames === 'number' &&
-        typeof data.data.totalFrames === 'number'
-      ) {
+      if (data.event_type === 'obs.performance.warning' && data.data && typeof data.data.dropRate === 'number') {
         return {
-          event_type: data.event_type,
+          event_type: 'obs.performance.warning',
           data: {
-            isWarning: data.data.isWarning,
+            isWarning: data.data.isWarning ?? true,
             dropRate: data.data.dropRate,
-            skippedFrames: data.data.skippedFrames,
-            totalFrames: data.data.totalFrames,
+            renderDropRate: data.data.renderDropRate ?? 0,
+            outputDropRate: data.data.outputDropRate ?? 0,
+            congestion: data.data.congestion ?? 0,
+            severity: data.data.severity ?? 'minor',
+            issueType: data.data.issueType ?? 'encoding_lag',
+            message: data.data.message ?? `OBS is dropping ${data.data.dropRate}% of frames`,
+            recommendation: data.data.recommendation ?? 'Check OBS performance',
+          },
+        }
+      } else if (data.event_type === 'obs.performance.ok' && data.data && typeof data.data.dropRate === 'number') {
+        return {
+          event_type: 'obs.performance.ok',
+          data: {
+            isWarning: data.data.isWarning ?? false,
+            dropRate: data.data.dropRate,
+            message: data.data.message ?? 'OBS performance recovered',
           },
         }
       }

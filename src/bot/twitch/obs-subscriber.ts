@@ -129,12 +129,33 @@ export class OBSSubscriber {
 
   private formatOBSEvent(event: OBSEvent, isRepeat: boolean = false): string | null {
     switch (event.event_type) {
-      case 'obs.performance.warning':
-        console.log(`[OBS] Performance warning: ${event.data.dropRate}% dropped frames`)
-        if (isRepeat) {
-          return `OBS is still dropping frames! It's not you I promise. Drop rate: ${event.data.dropRate}% avalonFINE`
+      case 'obs.performance.warning': {
+        console.log(
+          `[OBS] Performance warning: ${event.data.issueType} - ${event.data.dropRate}% dropped frames`
+        )
+
+        // Use severity to describe impact, not percentages
+        const severityPrefix = {
+          minor: 'Stream might be stuttering a bit',
+          moderate: 'Stream is stuttering',
+          critical: 'Stream is stuttering badly',
+        }[event.data.severity] || 'Stream quality issue detected'
+
+        // Customize message based on issue type
+        const issueMessages = {
+          network_congestion: isRepeat
+            ? `Still having network issues! It's not you, I promise. avalonFINE`
+            : `${severityPrefix} - network connection to Twitch is struggling. avalonFINE`,
+          rendering_lag: isRepeat
+            ? `Still having rendering issues! GPU can't keep up. avalonFINE`
+            : `${severityPrefix} - OBS rendering can't keep up. avalonFINE`,
+          encoding_lag: isRepeat
+            ? `Still having encoding issues! avalonFINE`
+            : `${severityPrefix} - encoder can't keep up. avalonFINE`,
         }
-        return `OBS has started dropping frames! Drop rate: ${event.data.dropRate}% avalonFINE`
+
+        return issueMessages[event.data.issueType] || event.data.message
+      }
 
       case 'obs.performance.ok':
         console.log(`[OBS] Performance recovered: ${event.data.dropRate}% drop rate`)
