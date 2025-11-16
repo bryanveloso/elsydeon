@@ -109,10 +109,18 @@ export const init = async () => {
       `⬆️ ⬇️ ➡️ ⬅️ ⬆️`
     ]
 
+    // Track if this is the first connection
+    let isFirstConnection = true
+
     // Set up event handlers
     bot.onConnect(() => {
-      console.log(`Twitch: Connected to ${channels.length} channels: ${channels.join(', ')}`)
-      bot.say('avalonstar', `avalonEUREKA ${startupMessages[Math.floor(Math.random() * startupMessages.length)]}`)
+      console.log(`Twitch: ${isFirstConnection ? 'Connected' : 'Reconnected'} to ${channels.length} channels: ${channels.join(', ')}`)
+
+      // Only send startup message on first connection, not reconnects
+      if (isFirstConnection) {
+        bot.say('avalonstar', `avalonEUREKA ${startupMessages[Math.floor(Math.random() * startupMessages.length)]}`)
+        isFirstConnection = false
+      }
     })
 
     bot.onDisconnect((graceful) => {
