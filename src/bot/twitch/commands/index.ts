@@ -1,5 +1,6 @@
 import { BotCommand } from '@twurple/easy-bot'
 import { features } from './features.config'
+import { log } from '@core/utils/logger'
 
 // Core commands
 import { cute } from './cute'
@@ -80,7 +81,7 @@ if (features.honors) {
 export const commands: BotCommand[] = commandList
 
 // Log enabled features
-console.log('[Commands] Enabled features:', Object.entries(features)
+log.twitch.info('Enabled features:', Object.entries(features)
   .filter(([_, enabled]) => enabled)
   .map(([name]) => name)
   .join(', '))

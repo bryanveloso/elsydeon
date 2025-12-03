@@ -1,6 +1,7 @@
 import Redis from 'ioredis'
 import type { Bot } from '@twurple/easy-bot'
 import { redisService, type AdEvent } from '@core/services/redis'
+import { log } from '@core/utils/logger'
 
 export class AdSubscriber {
   private subscriber: Redis
@@ -21,15 +22,15 @@ export class AdSubscriber {
       const initialStatus = await this.subscriber.get('broadcaster:status')
       if (initialStatus) {
         this.broadcasterStatus = initialStatus
-        console.log(`[Ads] Initial broadcaster status: ${this.broadcasterStatus}`)
+        log.ads.info(`Initial broadcaster status: ${this.broadcasterStatus}`)
       }
     } catch (error) {
-      console.error('[Ads] Failed to get initial status from Redis:', error)
+      log.ads.error('Failed to get initial status from Redis:', error)
     }
 
     // Subscribe to ad notifications and status updates
     await this.subscriber.subscribe('bot:ads', 'events:status')
-    console.log('[Ads] Subscribed to Redis bot:ads and events:status channels')
+    log.ads.info('Subscribed to Redis bot:ads and events:status channels')
 
     this.subscriber.on('message', (channel, message) => {
       if (channel === 'bot:ads') {
@@ -40,7 +41,7 @@ export class AdSubscriber {
     })
 
     this.subscriber.on('error', (error) => {
-      console.error('[Ads] Redis subscriber error:', error)
+      log.ads.error('Redis subscriber error:', error)
     })
   }
 
@@ -49,10 +50,10 @@ export class AdSubscriber {
       const data = JSON.parse(message)
       if (data.data && data.data.status) {
         this.broadcasterStatus = data.data.status
-        console.log(`[Ads] Broadcaster status updated: ${this.broadcasterStatus}`)
+        log.ads.info(`Broadcaster status updated: ${this.broadcasterStatus}`)
       }
     } catch (error) {
-      console.error('[Ads] Error parsing status message:', error)
+      log.ads.error('Error parsing status message:', error)
     }
   }
 
@@ -73,29 +74,27 @@ export class AdSubscriber {
   private formatAdEvent(event: AdEvent): string | null {
     switch (event.type) {
       case 'warning_start':
-        console.log(`[Ads] Warning: ${event.seconds}s until ad`)
+        log.ads.info(`Warning: ${event.seconds}s until ad`)
         return `This is a message from the emergency ad break system. Incoming ad in ${event.seconds} seconds!`
 
       case 'countdown':
         // Only announce at specific intervals
         if (event.seconds === 30) {
-          console.log(`[Ads] Countdown: ${event.seconds}s`)
-          // return `⏰ 30 seconds until ad break!`
+          log.ads.debug(`Countdown: ${event.seconds}s`)
         } else if (event.seconds === 10) {
-          console.log(`[Ads] Countdown: ${event.seconds}s`)
-          // return `⏰ 10 seconds until ad break!`
+          log.ads.debug(`Countdown: ${event.seconds}s`)
         } else if (event.seconds === 5) {
-          console.log(`[Ads] Countdown: ${event.seconds}s`)
+          log.ads.info(`Countdown: ${event.seconds}s`)
           return `An ad break will be commencing in 5 seconds! avalonWHY`
         }
         return null
 
       case 'ad_started':
-        console.log(`[Ads] Ad started: ${event.duration}s`)
+        log.ads.info(`Ad started: ${event.duration}s`)
         return `Running ${event.duration} seconds of ads now. We apologize for the interruption to your programming.`
 
       case 'ad_ended':
-        console.log(`[Ads] Ad ended`)
+        log.ads.info('Ad ended')
         return `The ad block has completed. You may now return to your irregularly scheduled programming.`
 
       default:
@@ -105,6 +104,6 @@ export class AdSubscriber {
 
   async stop() {
     await this.subscriber.quit()
-    console.log('[Ads] Subscriber stopped')
+    log.ads.info('Subscriber stopped')
   }
 }

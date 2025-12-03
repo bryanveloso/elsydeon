@@ -1,6 +1,7 @@
 import { setupShutdownHandler } from '@core/utils/shutdown'
 import { errorResponse, jsonResponse } from '@core/utils/http'
 import { quoteService } from '@core/services/quote'
+import { log } from '@core/utils/logger'
 
 // Setup shutdown handler
 setupShutdownHandler()
@@ -142,7 +143,7 @@ export const apiRoutes = {
 if (import.meta.main) {
   const port = parseInt(Bun.env.API_PORT || '4000')
 
-  console.log(`Starting API server on port ${port}...`)
+  log.api.info(`Starting API server on port ${port}...`)
 
   Bun.serve({
     port,
@@ -187,5 +188,5 @@ if (import.meta.main) {
     }
   })
 
-  console.log(`API server running at http://localhost:${port}`)
+  log.api.info(`API server running at http://localhost:${port}`)
 }

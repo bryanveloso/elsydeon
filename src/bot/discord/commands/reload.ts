@@ -1,4 +1,5 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
+import { log } from '@core/utils/logger'
 
 export const data = new SlashCommandBuilder()
   .setName('reload')
@@ -34,7 +35,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     return interaction.reply({ content: `Command \`${commandName}\` was reloaded!`, ephemeral: true })
   } catch (error) {
-    console.error(error)
+    log.discord.error('Error reloading command:', error)
     const errorMessage = error instanceof Error ? error.message : String(error)
     return interaction.reply({
       content: `There was an error while reloading a command \`${commandName}\`:\n\`${errorMessage}\``,

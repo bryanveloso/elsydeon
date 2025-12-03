@@ -1,5 +1,6 @@
 import { setupShutdownHandler } from '@core/utils/shutdown'
 import { quoteService } from '@core/services/quote'
+import { log } from '@core/utils/logger'
 import { init as discordInit } from './discord'
 import { init as twitchInit } from './twitch'
 
@@ -11,15 +12,15 @@ const startBots = async () => {
   try {
     // Load quote count and log it
     const quoteCount = await quoteService.getQuoteCount()
-    console.log(`Loaded ${quoteCount} quotes...`)
+    log.app.info(`Loaded ${quoteCount} quotes`)
 
     // Start Discord and Twitch bots
     await discordInit()
     await twitchInit()
 
-    console.log('Bot services initialized successfully')
+    log.app.info('Bot services initialized successfully')
   } catch (error) {
-    console.error('Failed to initialize bots:', error)
+    log.app.error('Failed to initialize bots:', error)
     process.exit(1)
   }
 }

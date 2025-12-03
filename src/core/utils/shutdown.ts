@@ -1,9 +1,11 @@
 /**
  * Graceful shutdown handler
  */
+import { log } from '@core/utils/logger'
+
 export const setupShutdownHandler = () => {
   const handleShutdown = () => {
-    console.log('Shutting down gracefully...')
+    log.app.info('Shutting down gracefully...')
     process.exit(0)
   }
 

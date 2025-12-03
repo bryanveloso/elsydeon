@@ -1,4 +1,5 @@
-import { EventEmitter } from 'node:events';
+import { EventEmitter } from 'node:events'
+import { log } from '@core/utils/logger'
 
 interface FFBotMetadata {
   cycle: number;
@@ -82,7 +83,7 @@ class FFBotService extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('[FFBot] Service initialized with API mode')
+    log.ffbot.info('Service initialized with API mode')
     // API-based service doesn't need initialization
     // Data is fetched on-demand
   }
@@ -168,7 +169,7 @@ class FFBotService extends EventEmitter {
 
       return stats
     } catch (error) {
-      console.error(`Failed to fetch FFBot stats for ${playerName}:`, error)
+      log.ffbot.error(`Failed to fetch stats for ${playerName}:`, error)
 
       // Return cached data if available, even if expired
       const cached = this.playerCache.get(cacheKey)

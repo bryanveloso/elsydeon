@@ -1,5 +1,6 @@
 import { createBotCommand } from '@twurple/easy-bot'
 import { quoteAnalyzerService, AnalysisPersonality } from '@core/services/quote-analyzer'
+import { log } from '@core/utils/logger'
 
 // Command to analyze user quotes:
 // !analyze - analyze your own quotes with random personality
@@ -56,12 +57,12 @@ export const analyze = createBotCommand('analyze', async (params, { say, msg: { 
       ]);
     } catch (error: any) {
       if (error.message === 'Timeout') {
-        say('The AI is taking too long to think... try again later!');
+        say('The AI is taking too long to think... try again later!')
       } else {
-        console.error('Error in analyze command:', error);
-        say('The AI had a stroke trying to analyze those quotes. Try again later!');
+        log.lmstudio.error('Error in analyze command:', error)
+        say('The AI had a stroke trying to analyze those quotes. Try again later!')
       }
-      return;
+      return
     }
     
     if (!analysis) {
@@ -79,10 +80,10 @@ export const analyze = createBotCommand('analyze', async (params, { say, msg: { 
       ? cleanSummary.substring(0, maxSummaryLength - 3) + '...'
       : cleanSummary;
     
-    say(prefix + truncatedSummary);
-    
+    say(prefix + truncatedSummary)
+
   } catch (error) {
-    console.error('Error in analyze command:', error);
-    say('Something went wrong with the analyze command.');
+    log.lmstudio.error('Error in analyze command:', error)
+    say('Something went wrong with the analyze command.')
   }
-});
+})

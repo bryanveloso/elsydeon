@@ -1,4 +1,5 @@
 import { createBotCommand } from '@twurple/easy-bot'
+import { log } from '@core/utils/logger'
 
 export const slap = createBotCommand('slap', async (params, { msg: { userInfo }, action }) => {
   try {
@@ -11,7 +12,7 @@ export const slap = createBotCommand('slap', async (params, { msg: { userInfo },
       action(`slaps ${userInfo.displayName} around a bit with a large trout. 🐟`)
     }
   } catch (error) {
-    console.error('Error in slap command:', error)
+    log.twitch.error('Error in slap command:', error)
     action('failed to execute the slap command properly!')
   }
 })

@@ -2,6 +2,7 @@ import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { setupShutdownHandler } from '@core/utils/shutdown'
 import { errorResponse, staticFileResponse } from '@core/utils/http'
+import { log } from '@core/utils/logger'
 
 // Setup shutdown handler
 setupShutdownHandler()
@@ -14,7 +15,7 @@ const distDir = join(projectRoot, 'dist')
 
 // Define server initialization function
 export const init = async (port: number = 3000) => {
-  console.log(`Initializing web server on port ${port}...`)
+  log.web.info(`Initializing on port ${port}...`)
 
   // Create server
   const server = Bun.serve({
@@ -66,7 +67,7 @@ export const init = async (port: number = 3000) => {
             headers: { 'Content-Type': 'application/json' }
           })
         } catch (error) {
-          console.error('API error:', error)
+          log.api.error('API error:', error)
           return new Response(JSON.stringify({ error: 'Internal server error' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
@@ -93,10 +94,9 @@ export const init = async (port: number = 3000) => {
         )
       }
 
-      // For API routes that weren't handled above, return JSON error
+      // For API routes that weren't handled above, return 404 silently (mostly bot scans)
       if (path.startsWith('/api/')) {
-        console.log(`Unhandled API route: ${path}`)
-        return errorResponse('API endpoint not found', 404)
+        return errorResponse('Not found', 404)
       }
 
       // For all other routes, serve the Vite-built index.html (SPA pattern)
@@ -104,7 +104,7 @@ export const init = async (port: number = 3000) => {
     }
   })
 
-  console.log(`Web server running at http://localhost:${port}`)
+  log.web.info(`Running at http://localhost:${port}`)
 
   return server
 }
@@ -112,13 +112,13 @@ export const init = async (port: number = 3000) => {
 // Main entry point for standalone web server
 if (import.meta.main) {
   const port = parseInt(Bun.env.WEB_PORT || '3001')
-  console.log(`Starting web server on port ${port}...`)
+  log.web.info(`Starting on port ${port}...`)
   init(port)
     .then(() => {
-      console.log('Web server initialized successfully')
+      log.web.info('Initialized successfully')
     })
     .catch((error) => {
-      console.error('Failed to initialize web server:', error)
+      log.web.error('Failed to initialize:', error)
       process.exit(1)
     })
 }

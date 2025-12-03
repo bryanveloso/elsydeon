@@ -2,6 +2,8 @@
  * Quote service for fetching and managing quotes from the Synthform API
  */
 
+import { log } from '@core/utils/logger'
+
 export interface Quote {
   id: string
   number: number
@@ -52,13 +54,13 @@ export class QuoteService {
       const response = await fetch(url)
 
       if (!response.ok) {
-        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        log.quotes.error(`HTTP error! status: ${response.status}`)
         return []
       }
 
       return await response.json()
     } catch (error) {
-      console.error('[Quotes] Error fetching random quotes:', error)
+      log.quotes.error('Error fetching random quotes:', error)
       return []
     }
   }
@@ -74,13 +76,13 @@ export class QuoteService {
       const response = await fetch(url)
 
       if (!response.ok) {
-        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        log.quotes.error(`HTTP error! status: ${response.status}`)
         return []
       }
 
       return await response.json()
     } catch (error) {
-      console.error('[Quotes] Error fetching latest quotes:', error)
+      log.quotes.error('Error fetching latest quotes:', error)
       return []
     }
   }
@@ -99,13 +101,13 @@ export class QuoteService {
         if (response.status === 404) {
           return null
         }
-        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        log.quotes.error(`HTTP error! status: ${response.status}`)
         return null
       }
 
       return await response.json()
     } catch (error) {
-      console.error('[Quotes] Error fetching quote by id:', error)
+      log.quotes.error('Error fetching quote by id:', error)
       return null
     }
   }
@@ -126,14 +128,14 @@ export class QuoteService {
       })
 
       if (!response.ok) {
-        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        log.quotes.error(`HTTP error! status: ${response.status}`)
         return null
       }
 
       const quote: Quote = await response.json()
       return { id: quote.number }
     } catch (error) {
-      console.error('[Quotes] Error adding quote:', error)
+      log.quotes.error('Error adding quote:', error)
       return null
     }
   }
@@ -153,7 +155,7 @@ export class QuoteService {
       const response = await fetch(url)
 
       if (!response.ok) {
-        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        log.quotes.error(`HTTP error! status: ${response.status}`)
         return { quotes: [], totalMatches: 0 }
       }
 
@@ -163,7 +165,7 @@ export class QuoteService {
         totalMatches: data.total_matches,
       }
     } catch (error) {
-      console.error('[Quotes] Error searching quotes:', error)
+      log.quotes.error('Error searching quotes:', error)
       return { quotes: [], totalMatches: 0 }
     }
   }
@@ -182,7 +184,7 @@ export class QuoteService {
       const response = await fetch(url)
 
       if (!response.ok) {
-        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        log.quotes.error(`HTTP error! status: ${response.status}`)
         return { quotes: [], totalMatches: 0 }
       }
 
@@ -192,7 +194,7 @@ export class QuoteService {
         totalMatches: data.total_matches,
       }
     } catch (error) {
-      console.error('[Quotes] Error fetching quotes by user:', error)
+      log.quotes.error('Error fetching quotes by user:', error)
       return { quotes: [], totalMatches: 0 }
     }
   }
@@ -213,7 +215,7 @@ export class QuoteService {
       const response = await fetch(url)
 
       if (!response.ok) {
-        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        log.quotes.error(`HTTP error! status: ${response.status}`)
         return {
           totalQuotes: 0,
           firstQuoteYear: null,
@@ -230,7 +232,7 @@ export class QuoteService {
         averageLength: data.average_length,
       }
     } catch (error) {
-      console.error('[Quotes] Error fetching user stats:', error)
+      log.quotes.error('Error fetching user stats:', error)
       return {
         totalQuotes: 0,
         firstQuoteYear: null,
@@ -258,7 +260,7 @@ export class QuoteService {
       const response = await fetch(url)
 
       if (!response.ok) {
-        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        log.quotes.error(`HTTP error! status: ${response.status}`)
         return {
           quotes: [],
           pagination: {
@@ -272,7 +274,7 @@ export class QuoteService {
 
       return await response.json()
     } catch (error) {
-      console.error('[Quotes] Error fetching paginated quotes:', error)
+      log.quotes.error('Error fetching paginated quotes:', error)
       return {
         quotes: [],
         pagination: {
@@ -296,13 +298,13 @@ export class QuoteService {
       const response = await fetch(url)
 
       if (!response.ok) {
-        console.error(`[Quotes] HTTP error! status: ${response.status}`)
+        log.quotes.error(`HTTP error! status: ${response.status}`)
         return []
       }
 
       return await response.json()
     } catch (error) {
-      console.error('[Quotes] Error fetching all users:', error)
+      log.quotes.error('Error fetching all users:', error)
       return []
     }
   }
@@ -312,7 +314,7 @@ export class QuoteService {
       const result = await this.getAllQuotesPaginated(1, 1)
       return result.pagination.total
     } catch (error) {
-      console.error('[Quotes] Error fetching quote count:', error)
+      log.quotes.error('Error fetching quote count:', error)
       return 0
     }
   }

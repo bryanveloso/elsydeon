@@ -1,4 +1,5 @@
 import { Client, Events, GatewayIntentBits, REST, Routes, Collection } from 'discord.js'
+import { log } from '@core/utils/logger'
 
 import { commands } from './commands'
 
@@ -24,19 +25,19 @@ export const init = async () => {
 
   // Set up event handlers
   discord.once(Events.ClientReady, async (client) => {
-    console.log(`Discord: Ready! Logged in as ${client.user.tag}`)
+    log.discord.info(`Ready! Logged in as ${client.user.tag}`)
 
     try {
       // Global commands for all guilds the bot is in
       if (client.application) {
-        console.log('Started refreshing application (/) commands.')
+        log.discord.info('Refreshing application (/) commands...')
 
         await rest.put(Routes.applicationCommands(client.application.id), { body: commandsData })
 
-        console.log('Successfully reloaded application (/) commands.')
+        log.discord.info('Successfully reloaded application (/) commands')
       }
     } catch (error) {
-      console.error('Error registering slash commands:', error)
+      log.discord.error('Error registering slash commands:', error)
     }
   })
 
@@ -51,7 +52,7 @@ export const init = async () => {
     try {
       await command.execute(interaction)
     } catch (error) {
-      console.error(`Error executing command ${interaction.commandName}:`, error)
+      log.discord.error(`Error executing command ${interaction.commandName}:`, error)
       const content = 'There was an error executing this command!'
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({ content, ephemeral: true })
@@ -62,7 +63,7 @@ export const init = async () => {
   })
 
   discord.on(Events.Error, (error) => {
-    console.error('Discord connection error:', error)
+    log.discord.error('Connection error:', error)
   })
 
   // Return a promise that resolves when connected

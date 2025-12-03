@@ -1,5 +1,6 @@
 import { RefreshingAuthProvider, type RefreshingAuthProviderConfig, type AccessToken } from '@twurple/auth'
 import { Bot, BotCommand, createBotCommand } from '@twurple/easy-bot'
+import { log } from '@core/utils/logger'
 import { AdSubscriber } from './ad-subscriber'
 import { OBSSubscriber } from './obs-subscriber'
 
@@ -72,7 +73,7 @@ export const init = async () => {
     // Save refreshed tokens
     authProvider.onRefresh(async (userId: string, newTokenData: AccessToken) => {
       await Bun.write(`./tokens.${userId}.json`, JSON.stringify(newTokenData, null, 2)).catch((err) => {
-        console.error(`Failed to save token: ${err.message}`)
+        log.twitch.error(`Failed to save token: ${err.message}`)
       })
     })
 
@@ -96,7 +97,7 @@ export const init = async () => {
     try {
       await bot.api.requestScopesForUser(parseInt(userId), appImpliedScopes)
     } catch (error) {
-      console.error('Failed to request scopes:', error)
+      log.twitch.error('Failed to request scopes:', error)
       // Continue anyway since this might be optional
     }
 
@@ -114,7 +115,7 @@ export const init = async () => {
 
     // Set up event handlers
     bot.onConnect(() => {
-      console.log(`Twitch: ${isFirstConnection ? 'Connected' : 'Reconnected'} to ${channels.length} channels: ${channels.join(', ')}`)
+      log.twitch.info(`${isFirstConnection ? 'Connected' : 'Reconnected'} to ${channels.length} channels: ${channels.join(', ')}`)
 
       // Only send startup message on first connection, not reconnects
       if (isFirstConnection) {
@@ -124,7 +125,7 @@ export const init = async () => {
     })
 
     bot.onDisconnect((graceful) => {
-      console.log(`Twitch: Disconnected ${graceful ? 'gracefully' : 'unexpectedly'}`)
+      log.twitch.warn(`Disconnected ${graceful ? 'gracefully' : 'unexpectedly'}`)
     })
 
     // Start ad notification subscriber
@@ -137,7 +138,7 @@ export const init = async () => {
 
     return bot
   } catch (error) {
-    console.error('Twitch initialization error:', error)
+    log.twitch.error('Initialization error:', error)
     throw error
   }
 }

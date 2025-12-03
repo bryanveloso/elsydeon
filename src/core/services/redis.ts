@@ -2,6 +2,8 @@
  * Redis service for subscribing to pub/sub channels
  */
 
+import { log } from '@core/utils/logger'
+
 export interface AdWarningEvent {
   type: 'warning_start'
   seconds: number
@@ -76,7 +78,7 @@ export class RedisService {
 
       return null
     } catch (error) {
-      console.error('[Redis] Error parsing ad message:', error)
+      log.redis.error('Error parsing ad message:', error)
       return null
     }
   }
@@ -117,7 +119,7 @@ export class RedisService {
 
       return null
     } catch (error) {
-      console.error('[Redis] Error parsing OBS message:', error)
+      log.redis.error('Error parsing OBS message:', error)
       return null
     }
   }

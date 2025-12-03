@@ -1,6 +1,7 @@
 import Redis from 'ioredis'
 import type { Bot } from '@twurple/easy-bot'
 import { redisService, type OBSEvent } from '@core/services/redis'
+import { log } from '@core/utils/logger'
 
 export class OBSSubscriber {
   private subscriber: Redis
@@ -30,15 +31,15 @@ export class OBSSubscriber {
       const initialStatus = await this.subscriber.get('broadcaster:status')
       if (initialStatus) {
         this.broadcasterStatus = initialStatus
-        console.log(`[OBS] Initial broadcaster status: ${this.broadcasterStatus}`)
+        log.obs.info(`Initial broadcaster status: ${this.broadcasterStatus}`)
       }
     } catch (error) {
-      console.error('[OBS] Failed to get initial status from Redis:', error)
+      log.obs.error('Failed to get initial status from Redis:', error)
     }
 
     // Subscribe to OBS events and status updates
     await this.subscriber.subscribe('events:obs', 'events:status')
-    console.log('[OBS] Subscribed to Redis events:obs and events:status channels')
+    log.obs.info('Subscribed to Redis events:obs and events:status channels')
 
     this.subscriber.on('message', (channel, message) => {
       if (channel === 'events:obs') {
@@ -49,7 +50,7 @@ export class OBSSubscriber {
     })
 
     this.subscriber.on('error', (error) => {
-      console.error('[OBS] Redis subscriber error:', error)
+      log.obs.error('Redis subscriber error:', error)
     })
   }
 
@@ -58,10 +59,10 @@ export class OBSSubscriber {
       const data = JSON.parse(message)
       if (data.data && data.data.status) {
         this.broadcasterStatus = data.data.status
-        console.log(`[OBS] Broadcaster status updated: ${this.broadcasterStatus}`)
+        log.obs.info(`Broadcaster status updated: ${this.broadcasterStatus}`)
       }
     } catch (error) {
-      console.error('[OBS] Error parsing status message:', error)
+      log.obs.error('Error parsing status message:', error)
     }
   }
 
@@ -81,7 +82,7 @@ export class OBSSubscriber {
         clearTimeout(this.clearTimerId)
         this.clearTimerId = null
         this.pendingClearMessage = null
-        console.log('[OBS] Cancelled pending clear message due to new warning')
+        log.obs.debug('Cancelled pending clear message due to new warning')
       }
 
       // Only send warning if cooldown has elapsed
@@ -93,7 +94,7 @@ export class OBSSubscriber {
           this.isInWarningState = true
         }
       } else {
-        console.log('[OBS] Skipping warning (cooldown active)')
+        log.obs.debug('Skipping warning (cooldown active)')
       }
     } else if (event.event_type === 'obs.performance.ok') {
       // Format the message but don't send it yet
@@ -114,25 +115,23 @@ export class OBSSubscriber {
             this.bot.say(this.channel, this.pendingClearMessage)
             this.lastClearTime = Date.now()
             this.isInWarningState = false
-            console.log('[OBS] Sent clear message after stability period')
+            log.obs.info('Sent clear message after stability period')
           }
         } else {
-          console.log('[OBS] Skipping clear message (cooldown active)')
+          log.obs.debug('Skipping clear message (cooldown active)')
         }
         this.clearTimerId = null
         this.pendingClearMessage = null
       }, this.CLEAR_DELAY)
 
-      console.log(`[OBS] Waiting ${this.CLEAR_DELAY / 1000}s for performance stability`)
+      log.obs.debug(`Waiting ${this.CLEAR_DELAY / 1000}s for performance stability`)
     }
   }
 
   private formatOBSEvent(event: OBSEvent, isRepeat: boolean = false): string | null {
     switch (event.event_type) {
       case 'obs.performance.warning': {
-        console.log(
-          `[OBS] Performance warning: ${event.data.issueType} - ${event.data.dropRate}% dropped frames`
-        )
+        log.obs.warn(`Performance warning: ${event.data.issueType} - ${event.data.dropRate}% dropped frames`)
 
         // Use severity to describe impact, not percentages
         const severityPrefix = {
@@ -158,7 +157,7 @@ export class OBSSubscriber {
       }
 
       case 'obs.performance.ok':
-        console.log(`[OBS] Performance recovered: ${event.data.dropRate}% drop rate`)
+        log.obs.info(`Performance recovered: ${event.data.dropRate}% drop rate`)
         return `OBS looks to have stopped its shenanigans! avalonSHUCKS`
 
       default:
@@ -172,6 +171,6 @@ export class OBSSubscriber {
       this.clearTimerId = null
     }
     await this.subscriber.quit()
-    console.log('[OBS] Subscriber stopped')
+    log.obs.info('Subscriber stopped')
   }
 }

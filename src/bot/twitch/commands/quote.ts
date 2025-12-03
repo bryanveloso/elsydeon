@@ -1,5 +1,6 @@
 import { createBotCommand } from '@twurple/easy-bot'
 import { quoteService } from '@core/services/quote'
+import { log } from '@core/utils/logger'
 
 // Command to handle quotes in different forms:
 // !quote - get a random quote
@@ -64,7 +65,7 @@ export const quote = createBotCommand('quote', async (params, { say, msg: { user
 
           say(`I've added the quote #${result.id} to the database. Blame yourself or God. avalonSMUG`)
         } catch (error) {
-          console.error('Failed to add quote:', error)
+          log.quotes.error('Failed to add quote:', error)
           say('Failed to add quote. Please try again later? avalonANGY')
         }
       } else {
@@ -158,7 +159,7 @@ export const quote = createBotCommand('quote', async (params, { say, msg: { user
       )
     }
   } catch (error) {
-    console.error('Error in quote command:', error)
+    log.quotes.error('Error in quote command:', error)
     say('An error occurred while processing the quote command.')
   }
 })

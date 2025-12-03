@@ -1,6 +1,7 @@
 import { lmStudioService } from './lm-studio'
 import { quoteService, Quote } from './quote'
 import { MODEL_PRESETS } from '@core/config/model-presets'
+import { log } from '@core/utils/logger'
 
 export type AnalysisPersonality = 'roast' | 'wholesome' | 'philosophical' | 'sarcastic' | 'professional' | 'drunk'
 
@@ -75,7 +76,7 @@ Now describe what ${username} is like in that exact style. MAX 250 CHARACTERS! O
         totalQuotes: stats.totalQuotes
       }
     } catch (error) {
-      console.error('Quote analysis failed:', error)
+      log.quotes.error('Quote analysis failed:', error)
       throw error
     }
   }

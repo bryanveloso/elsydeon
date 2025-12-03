@@ -1,11 +1,12 @@
-import { 
-  CompletionOptions, 
-  CompletionRequest, 
-  CompletionResponse, 
+import {
+  CompletionOptions,
+  CompletionRequest,
+  CompletionResponse,
   LMStudioConfig,
   Message,
-  StreamChunk 
-} from '@core/types/lm-studio';
+  StreamChunk
+} from '@core/types/lm-studio'
+import { log } from '@core/utils/logger'
 
 export class LMStudioService {
   private config: LMStudioConfig;
@@ -20,9 +21,9 @@ export class LMStudioService {
       apiUrl: process.env.LM_STUDIO_API_URL || defaultUrl,
       apiKey: process.env.LM_STUDIO_API_KEY,
       model: process.env.LM_STUDIO_MODEL || 'llama-3.2-3b-instruct'
-    };
-    
-    console.log(`LM Studio configured for ${this.config.apiUrl}`);
+    }
+
+    log.lmstudio.info(`Configured for ${this.config.apiUrl}`)
   }
 
   async generateCompletion(
@@ -68,10 +69,10 @@ export class LMStudioService {
         throw new Error(`LM Studio API error: ${response.status} ${response.statusText}`);
       }
 
-      return await response.json();
+      return await response.json()
     } catch (error) {
-      console.error('Error calling LM Studio API:', error);
-      throw error;
+      log.lmstudio.error('Error calling API:', error)
+      throw error
     }
   }
 
@@ -140,20 +141,20 @@ export class LMStudioService {
             if (data === '[DONE]') continue;
             
             try {
-              const chunk: StreamChunk = JSON.parse(data);
-              const content = chunk.choices[0]?.delta?.content;
+              const chunk: StreamChunk = JSON.parse(data)
+              const content = chunk.choices[0]?.delta?.content
               if (content) {
-                yield content;
+                yield content
               }
             } catch (e) {
-              console.error('Error parsing stream chunk:', e);
+              log.lmstudio.error('Error parsing stream chunk:', e)
             }
           }
         }
       }
     } catch (error) {
-      console.error('Error streaming from LM Studio API:', error);
-      throw error;
+      log.lmstudio.error('Error streaming from API:', error)
+      throw error
     }
   }
 
@@ -162,10 +163,10 @@ export class LMStudioService {
       const response = await fetch(`${this.config.apiUrl}/models`, {
         headers: this.config.apiKey ? { 'Authorization': `Bearer ${this.config.apiKey}` } : {}
       });
-      return response.ok;
+      return response.ok
     } catch (error) {
-      console.error('Failed to connect to LM Studio:', error);
-      return false;
+      log.lmstudio.error('Failed to connect:', error)
+      return false
     }
   }
 

@@ -2,6 +2,8 @@
  * Campaign service for fetching and managing campaign data from the Synthform API
  */
 
+import { log } from '@core/utils/logger'
+
 interface Milestone {
   id: string
   threshold: number
@@ -78,33 +80,33 @@ class CampaignService {
 
     try {
       const url = `${this.baseUrl}/active`
-      console.log('[Campaign] Fetching from:', url)
+      log.campaign.debug('Fetching from:', url)
 
       const response = await fetch(url)
 
       if (!response.ok) {
         if (response.status === 404) {
-          console.log('[Campaign] No active campaign found')
+          log.campaign.debug('No active campaign found')
           // No active campaign
           this.cache = { data: null, timestamp: Date.now() }
           return null
         }
-        console.error(`[Campaign] HTTP error! status: ${response.status}`)
+        log.campaign.error(`HTTP error! status: ${response.status}`)
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
       const data = await response.json()
-      console.log('[Campaign] Fetched campaign:', data.name)
+      log.campaign.debug('Fetched campaign:', data.name)
 
       // Cache the response
       this.cache = { data, timestamp: Date.now() }
 
       return data as Campaign
     } catch (error) {
-      console.error('[Campaign] Failed to fetch active campaign:', error)
+      log.campaign.error('Failed to fetch active campaign:', error)
       // Return cached data if available, even if expired
       if (this.cache?.data) {
-        console.log('[Campaign] Returning stale cache due to error')
+        log.campaign.warn('Returning stale cache due to error')
         return this.cache.data
       }
       return null
@@ -251,7 +253,7 @@ class CampaignService {
 
       return { success: true, message: 'Timer started successfully!' }
     } catch (error) {
-      console.error('Failed to start timer:', error)
+      log.campaign.error('Failed to start timer:', error)
       return { success: false, message: 'Failed to start timer' }
     }
   }
@@ -283,7 +285,7 @@ class CampaignService {
 
       return { success: true, message: 'Timer paused successfully!' }
     } catch (error) {
-      console.error('Failed to pause timer:', error)
+      log.campaign.error('Failed to pause timer:', error)
       return { success: false, message: 'Failed to pause timer' }
     }
   }
@@ -294,25 +296,25 @@ class CampaignService {
   async getGiftLeaderboard(limit: number = 5): Promise<GiftLeaderboardEntry[]> {
     try {
       const url = `${this.baseUrl}/active/gifts/leaderboard?limit=${limit}`
-      console.log('[Campaign] Fetching gift leaderboard from:', url)
+      log.campaign.debug('Fetching gift leaderboard from:', url)
 
       const response = await fetch(url)
 
       if (!response.ok) {
         if (response.status === 404) {
-          console.log('[Campaign] No active campaign for leaderboard')
+          log.campaign.debug('No active campaign for leaderboard')
           return []
         }
-        console.error(`[Campaign] HTTP error! status: ${response.status}`)
+        log.campaign.error(`HTTP error! status: ${response.status}`)
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
       const data = await response.json()
-      console.log('[Campaign] Fetched gift leaderboard:', data.length, 'entries')
+      log.campaign.debug('Fetched gift leaderboard:', data.length, 'entries')
 
       return data as GiftLeaderboardEntry[]
     } catch (error) {
-      console.error('[Campaign] Failed to fetch gift leaderboard:', error)
+      log.campaign.error('Failed to fetch gift leaderboard:', error)
       return []
     }
   }

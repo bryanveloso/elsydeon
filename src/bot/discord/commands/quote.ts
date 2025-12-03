@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, CommandInteraction } from 'discord.js'
 import { quoteService } from '@core/services/quote'
+import { log } from '@core/utils/logger'
 
 export const data = new SlashCommandBuilder()
   .setName('quote')
@@ -62,7 +63,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         await interaction.reply('Unknown subcommand')
     }
   } catch (error) {
-    console.error('Error in Discord quote command:', error)
+    log.discord.error('Error in quote command:', error)
     await interaction.reply({
       content: 'An error occurred while processing the quote command.',
       ephemeral: true
@@ -195,7 +196,7 @@ async function handleAddQuote(interaction: ChatInputCommandInteraction) {
 
     await interaction.editReply({ embeds: [embed] })
   } catch (error) {
-    console.error('Failed to add quote:', error)
+    log.discord.error('Failed to add quote:', error)
     await interaction.editReply('Failed to add quote. Please try again later.')
   }
 }

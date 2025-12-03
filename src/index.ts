@@ -1,5 +1,6 @@
 import { setupShutdownHandler } from '@core/utils/shutdown'
 import { quoteService } from '@core/services/quote'
+import { log } from '@core/utils/logger'
 import { startBots } from '@bot/index'
 import { init as webInit } from '@web/index'
 
@@ -11,7 +12,7 @@ const startup = async () => {
   try {
     // Log quote count
     const quoteCount = await quoteService.getQuoteCount()
-    console.log(`Loaded ${quoteCount} quotes...`)
+    log.app.info(`Loaded ${quoteCount} quotes`)
 
     // Start Discord and Twitch bots
     await startBots()
@@ -24,9 +25,9 @@ const startup = async () => {
       await webInit(webPort)
     }
 
-    console.log('All services initialized successfully')
+    log.app.info('All services initialized successfully')
   } catch (error) {
-    console.error('Failed to initialize:', error)
+    log.app.error('Failed to initialize:', error)
     process.exit(1)
   }
 }
