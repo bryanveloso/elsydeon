@@ -128,11 +128,14 @@ export const init = async () => {
       log.twitch.warn(`Disconnected ${graceful ? 'gracefully' : 'unexpectedly'}`)
     })
 
-    // Track actual channel joins
+    // Track actual channel joins using the underlying chat client
+    const joinedChannels = new Set<string>()
     bot.chat.onJoin((channel, user) => {
-      // Only log when the bot itself joins, not other users
-      if (user === bot.chat.currentNick) {
-        log.twitch.info(`Joined #${channel}`)
+      // The bot joins its own channels, so track when we join each configured channel
+      const normalizedChannel = channel.toLowerCase().replace(/^#/, '')
+      if (channels.map((c) => c.toLowerCase()).includes(normalizedChannel) && !joinedChannels.has(normalizedChannel)) {
+        joinedChannels.add(normalizedChannel)
+        log.twitch.info(`Joined #${normalizedChannel}`)
       }
     })
 
