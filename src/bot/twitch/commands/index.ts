@@ -4,6 +4,7 @@ import { log } from '@core/utils/logger'
 
 // Core commands
 import { cute } from './cute'
+import { getyeflask } from './getyeflask'
 import { punt } from './punt'
 import { slap } from './slap'
 
@@ -38,7 +39,7 @@ const commandList: BotCommand[] = []
 
 // Core commands
 if (features.core) {
-  commandList.push(cute, punt, slap)
+  commandList.push(cute, getyeflask, punt, slap)
 }
 
 // Quote system
