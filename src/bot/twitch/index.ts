@@ -115,7 +115,7 @@ export const init = async () => {
 
     // Set up event handlers
     bot.onConnect(() => {
-      log.twitch.info(`${isFirstConnection ? 'Connected' : 'Reconnected'} to ${channels.length} channels: ${channels.join(', ')}`)
+      log.twitch.info(`${isFirstConnection ? 'Connected' : 'Reconnected'} to Twitch, requesting ${channels.length} channels: ${channels.join(', ')}`)
 
       // Only send startup message on first connection, not reconnects
       if (isFirstConnection) {
@@ -126,6 +126,18 @@ export const init = async () => {
 
     bot.onDisconnect((graceful) => {
       log.twitch.warn(`Disconnected ${graceful ? 'gracefully' : 'unexpectedly'}`)
+    })
+
+    // Track actual channel joins
+    bot.chat.onJoin((channel, user) => {
+      // Only log when the bot itself joins, not other users
+      if (user === bot.chat.currentNick) {
+        log.twitch.info(`Joined #${channel}`)
+      }
+    })
+
+    bot.chat.onJoinFailure((channel, reason) => {
+      log.twitch.error(`Failed to join #${channel}: ${reason}`)
     })
 
     // Start ad notification subscriber
