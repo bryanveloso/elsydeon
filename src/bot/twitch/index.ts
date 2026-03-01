@@ -119,7 +119,8 @@ export const init = async () => {
 
       // Only send startup message on first connection, not reconnects
       if (isFirstConnection) {
-        bot.say('avalonstar', `avalonEUREKA ${startupMessages[Math.floor(Math.random() * startupMessages.length)]}`)
+        const message = startupMessages[Math.floor(Math.random() * startupMessages.length)]
+        channels.forEach((channel) => bot.say(channel, `avalonEUREKA ${message}`))
         isFirstConnection = false
       }
     })
@@ -129,11 +130,12 @@ export const init = async () => {
     })
 
     // Track actual channel joins using the underlying chat client
+    const expectedChannels = new Set(channels.map((c) => c.toLowerCase()))
     const joinedChannels = new Set<string>()
-    bot.chat.onJoin((channel, user) => {
-      // The bot joins its own channels, so track when we join each configured channel
+
+    bot.chat.onJoin((channel, _user) => {
       const normalizedChannel = channel.toLowerCase().replace(/^#/, '')
-      if (channels.map((c) => c.toLowerCase()).includes(normalizedChannel) && !joinedChannels.has(normalizedChannel)) {
+      if (expectedChannels.has(normalizedChannel) && !joinedChannels.has(normalizedChannel)) {
         joinedChannels.add(normalizedChannel)
         log.twitch.info(`Joined #${normalizedChannel}`)
       }
@@ -142,6 +144,14 @@ export const init = async () => {
     bot.chat.onJoinFailure((channel, reason) => {
       log.twitch.error(`Failed to join #${channel}: ${reason}`)
     })
+
+    // Check for missing joins after a delay (Twitch silently ignores some join requests)
+    setTimeout(() => {
+      const missingChannels = [...expectedChannels].filter((c) => !joinedChannels.has(c))
+      if (missingChannels.length > 0) {
+        log.twitch.warn(`Never received join confirmation for: ${missingChannels.map((c) => `#${c}`).join(', ')}`)
+      }
+    }, 10000)
 
     // Start ad notification subscriber
     const adSubscriber = new AdSubscriber(bot)
